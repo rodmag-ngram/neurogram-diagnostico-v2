@@ -196,7 +196,7 @@ function appendBotBubble(html) {
   const div = document.createElement('div');
   div.className = 'msg msg-bot';
   div.innerHTML = `
-    <div class="msg-avatar">🧠</div>
+    <div class="msg-avatar"><img src="assets/icone_neurogram.svg" alt="" class="avatar-icon"></div>
     <div class="msg-bubble">${html}</div>
   `;
   chat.appendChild(div);

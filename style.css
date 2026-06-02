@@ -1656,3 +1656,45 @@ body {
   .rh-header { padding: 12px 20px; }
   .rh-btn-outline { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   LOGOS & ÍCONES — Neurogram brand
+   ══════════════════════════════════════════════════════════════ */
+
+/* Logo na welcome (fundo claro — logo preta original) */
+.wc-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+  margin-bottom: 24px;
+}
+
+/* Logo no header de resultados (fundo escuro — inverte para branco) */
+.rh-logo-img {
+  height: 28px;
+  width: auto;
+  filter: brightness(0) invert(1);
+}
+
+/* Ícone na sidebar (fundo escuro — branco) */
+.sb-icon {
+  height: 16px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  opacity: .8;
+}
+
+/* Ícone no avatar do chat (fundo escuro — branco) */
+.avatar-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+/* Avatar do chat — ajusta tamanho para o ícone */
+.msg-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
