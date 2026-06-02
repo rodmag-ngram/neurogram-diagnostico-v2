@@ -42,25 +42,25 @@ CREATE TABLE diagnostics (
 
   -- ── Respostas brutas (índice de cada pergunta) ──────
   -- Segurança
-  resp_seg_armazenamento  INTEGER,
-  resp_seg_backup         INTEGER,
-  resp_seg_acesso         INTEGER,
-  resp_seg_historico      INTEGER,
+  resp_seg_armazenamento  TEXT,
+  resp_seg_backup         TEXT,
+  resp_seg_acesso         TEXT,
+  resp_seg_historico      TEXT,
   -- Processos
-  resp_proc_envio         INTEGER,
-  resp_proc_pendentes     INTEGER,
-  resp_proc_qualidade     INTEGER,
-  resp_proc_assinatura    INTEGER,
+  resp_proc_envio         TEXT,
+  resp_proc_pendentes     TEXT,
+  resp_proc_qualidade     TEXT,
+  resp_proc_assinatura    TEXT,
   -- Interoperabilidade
-  resp_inter_equipamento  INTEGER,
-  resp_inter_visualizacao INTEGER,
-  resp_inter_plataformas  INTEGER,
-  resp_inter_entrega      INTEGER,
+  resp_inter_equipamento  TEXT,
+  resp_inter_visualizacao TEXT,
+  resp_inter_plataformas  TEXT,
+  resp_inter_entrega      TEXT,
   -- Inteligência
-  resp_int_volume         INTEGER,
-  resp_int_tempo          INTEGER,
-  resp_int_indicadores    INTEGER,
-  resp_int_gargalos       INTEGER,
+  resp_int_volume         TEXT,
+  resp_int_tempo          TEXT,
+  resp_int_indicadores    TEXT,
+  resp_int_gargalos       TEXT,
 
   -- ── Metadados ───────────────────────────────────────
   whatsapp_requested BOOLEAN DEFAULT false,

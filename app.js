@@ -620,6 +620,18 @@ function renderResults() {
 // ============================================================
 // SUPABASE / BACKEND
 // ============================================================
+// Converte índices das respostas para os labels reais
+function getAnswerLabels() {
+  const labels = {};
+  for (const q of BENCHMARK_QUESTIONS) {
+    const idx = state.benchmarkAnswers[q.id];
+    if (idx !== undefined && idx !== null) {
+      labels[q.id] = q.options[idx].label;
+    }
+  }
+  return labels;
+}
+
 async function submitToBackend() {
   try {
     await fetch('/.netlify/functions/submit', {
@@ -643,7 +655,7 @@ async function submitToBackend() {
         persona_tier:             state.persona?.tier,
         badges:                   state.unlockedBadges,
         swot:                     state.swot,
-        answers:                  state.benchmarkAnswers
+        answers:                  getAnswerLabels()
       })
     });
   } catch(e) { console.warn('Backend offline (local mode):', e.message); }
