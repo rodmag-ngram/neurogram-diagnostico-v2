@@ -1,0 +1,15 @@
+{
+  "name": "neurogram-diagnostico-v2",
+  "version": "2.0.0",
+  "description": "Diagnóstico de Maturidade Operacional — Neurogram",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site — no build step required'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {}
+
+}

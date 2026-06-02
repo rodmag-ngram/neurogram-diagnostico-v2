@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico de Maturidade Operacional — Neurogram</title>
+  <meta name="description" content="Descubra o nível de maturidade operacional da sua clínica em Segurança, Processos, Interoperabilidade e Inteligência.">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════
+       TELA 1: WELCOME — FSM style
+  ══════════════════════════════════════════════ -->
+  <div id="screen-welcome" class="screen active">
+
+    <!-- Esquerda: card branco com preview do resultado dentro -->
+    <div class="welcome-left">
+      <div class="welcome-card-outer">
+        <div class="welcome-card-inner">
+
+          <!-- Miniatura do resultado (dark) -->
+          <div class="wp-doc">
+
+            <!-- Header do doc -->
+            <div class="wp-doc-header">
+              <div class="wp-doc-eyebrow">
+                <span class="wp-doc-dash"></span>
+                <span>DIAGNÓSTICO</span>
+              </div>
+              <span class="wp-doc-date">JUN · 2026</span>
+            </div>
+            <div class="wp-doc-title">Maturidade Operacional em EEG</div>
+
+            <!-- Perfil + Persona -->
+            <div class="wp-doc-top">
+              <div class="wp-doc-profile">
+                <div class="wp-prow"><span class="wp-plabel">NOME</span><span class="wp-pval">Ana Souza</span></div>
+                <div class="wp-prow"><span class="wp-plabel">FUNÇÃO</span><span class="wp-pval">Diretora</span></div>
+                <div class="wp-prow"><span class="wp-plabel">INSTITUIÇÃO</span><span class="wp-pval">Clínica EEG SP</span></div>
+                <div class="wp-prow"><span class="wp-plabel">VOLUME</span><span class="wp-pval">251–500/mês</span></div>
+              </div>
+              <div class="wp-doc-persona">
+                <div class="wp-persona-lbl">PERSONA</div>
+                <div class="wp-persona-icon">✦</div>
+                <div class="wp-persona-name">🔗 ECOSSISTEMA INTEGRADO</div>
+                <div class="wp-persona-desc">Sua clínica se destaca pela capacidade de conectar sistemas, equipamentos e profissionais em uma operação fluida e eficiente.</div>
+              </div>
+            </div>
+
+            <!-- Skills mini -->
+            <div class="wp-section-label"><span class="wp-snum">01</span> Skills <span class="wp-ssub">4 PILARES</span></div>
+            <div class="wp-skills">
+              <div class="wp-radar-mini">
+                <canvas id="welcome-radar" width="120" height="120"></canvas>
+              </div>
+              <div class="wp-bars">
+                <div class="wp-bar-row">
+                  <span class="wp-bar-name">Segurança</span>
+                  <div class="wp-bar-track"><div class="wp-bar-fill" style="width:82%;background:#06B6D4"></div></div>
+                  <span class="wp-bar-val" style="color:#06B6D4">82</span>
+                </div>
+                <div class="wp-bar-row">
+                  <span class="wp-bar-name">Processos</span>
+                  <div class="wp-bar-track"><div class="wp-bar-fill" style="width:75%;background:#10B981"></div></div>
+                  <span class="wp-bar-val" style="color:#10B981">75</span>
+                </div>
+                <div class="wp-bar-row">
+                  <span class="wp-bar-name">Interoper.</span>
+                  <div class="wp-bar-track"><div class="wp-bar-fill" style="width:91%;background:#8B5CF6"></div></div>
+                  <span class="wp-bar-val" style="color:#8B5CF6">91</span>
+                </div>
+                <div class="wp-bar-row">
+                  <span class="wp-bar-name">Inteligência</span>
+                  <div class="wp-bar-track"><div class="wp-bar-fill" style="width:58%;background:#F59E0B"></div></div>
+                  <span class="wp-bar-val" style="color:#F59E0B">58</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Badges mini -->
+            <div class="wp-section-label"><span class="wp-snum">02</span> Badges <span class="wp-ssub">6 CONQUISTADAS</span></div>
+            <div class="wp-badges">
+              <div class="wp-badge wp-badge-on">🔒 Dados Protegidos</div>
+              <div class="wp-badge wp-badge-on">💾 Backup Garantido</div>
+              <div class="wp-badge wp-badge-on">⚡ Integração</div>
+              <div class="wp-badge wp-badge-on">🧩 Multimarca</div>
+              <div class="wp-badge wp-badge-on">🏢 Plataforma Única</div>
+              <div class="wp-badge wp-badge-on">📤 Entrega</div>
+              <div class="wp-badge">👤 Acesso</div>
+              <div class="wp-badge">🔎 Histórico</div>
+              <div class="wp-badge">📋 Fluxo</div>
+              <div class="wp-badge">⏳ Fila</div>
+            </div>
+
+            <!-- SWOT mini -->
+            <div class="wp-section-label"><span class="wp-snum">03</span> SWOT <span class="wp-ssub">ANÁLISE QUALITATIVA</span></div>
+            <div class="wp-swot">
+              <div class="wp-swot-box wp-swot-forcas">
+                <div class="wp-swot-title">💪 FORÇAS</div>
+                <div class="wp-swot-line"></div>
+                <div class="wp-swot-item">• Alta integração entre equipamentos</div>
+                <div class="wp-swot-item">• Fluxo centralizado e rastreável</div>
+              </div>
+              <div class="wp-swot-box wp-swot-fraquezas">
+                <div class="wp-swot-title">🔴 FRAQUEZAS</div>
+                <div class="wp-swot-line"></div>
+                <div class="wp-swot-item">• Visibilidade limitada de indicadores</div>
+                <div class="wp-swot-item">• Inteligência operacional baixa</div>
+              </div>
+              <div class="wp-swot-box wp-swot-opor">
+                <div class="wp-swot-title">🎯 OPORTUNIDADES</div>
+                <div class="wp-swot-line"></div>
+                <div class="wp-swot-item">• Dashboard de métricas operacionais</div>
+                <div class="wp-swot-item">• Automação de indicadores</div>
+              </div>
+              <div class="wp-swot-box wp-swot-alertas">
+                <div class="wp-swot-title">⚠️ ALERTAS</div>
+                <div class="wp-swot-line"></div>
+                <div class="wp-swot-item">• Conectividade alta mas sem dados</div>
+                <div class="wp-swot-item">• Risco de decisões sem evidência</div>
+              </div>
+            </div>
+
+          </div><!-- /wp-doc -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Direita: copy FSM style -->
+    <div class="welcome-right">
+      <div class="welcome-copy">
+        <div class="wc-eyebrow">— diagnóstico</div>
+        <h1>Descubra o nível de maturidade da sua clínica de EEG</h1>
+        <p>Avaliação completa e gratuita em cada uma das 4 dimensões da operação: <strong>segurança</strong>, <strong>processos</strong>, <strong>interoperabilidade</strong> e <strong>inteligência</strong>.</p>
+        <div class="wc-stats">
+          <span>⏱ 8 minutos</span>
+          <span class="wc-check">✓ 100% gratuito</span>
+        </div>
+        <button class="btn-primary" id="btn-start">Começar diagnóstico →</button>
+        <div class="wc-privacy">Suas respostas são processadas apenas para gerar o seu relatório. Não compartilhamos dados com terceiros.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       TELA 2: ASSESSMENT
+  ══════════════════════════════════════════════ -->
+  <div id="screen-assessment" class="screen">
+
+    <!-- Progress bar no topo -->
+    <div class="top-progress">
+      <div class="top-progress-fill" id="top-progress-fill"></div>
+    </div>
+
+    <div class="assessment-layout">
+
+      <!-- Chat -->
+      <div class="chat-panel" id="chat-panel">
+        <div class="chat-inner" id="chat-inner"></div>
+      </div>
+
+      <!-- Sidebar escura -->
+      <div class="sidebar-panel">
+        <div class="sidebar-inner">
+
+          <div class="sb-header">
+            <span class="sb-label">Diagnóstico</span>
+            <span class="sb-date" id="sb-date"></span>
+          </div>
+
+          <div class="sb-title">Maturidade Operacional em EEG</div>
+
+          <!-- Perfil ao vivo -->
+          <div class="sb-profile" id="sb-profile">
+            <div class="sb-profile-row" id="sbp-nome">
+              <div class="sb-profile-icon">👤</div>
+              <span class="sb-profile-label">Nome</span>
+              <span class="sb-profile-value">—</span>
+            </div>
+            <div class="sb-profile-row" id="sbp-funcao">
+              <div class="sb-profile-icon">💼</div>
+              <span class="sb-profile-label">Função</span>
+              <span class="sb-profile-value">—</span>
+            </div>
+            <div class="sb-profile-row" id="sbp-instituicao">
+              <div class="sb-profile-icon">🏥</div>
+              <span class="sb-profile-label">Instituição</span>
+              <span class="sb-profile-value">—</span>
+            </div>
+            <div class="sb-profile-row" id="sbp-volume">
+              <div class="sb-profile-icon">📊</div>
+              <span class="sb-profile-label">Volume</span>
+              <span class="sb-profile-value">—</span>
+            </div>
+          </div>
+
+          <!-- Persona placeholder -->
+          <div class="sb-persona unknown" id="sb-persona">
+            <div class="sb-persona-label">Persona</div>
+            <div class="sb-persona-icon-row">
+              <div class="sb-persona-icon">✦</div>
+              <div class="sb-persona-name">???</div>
+            </div>
+            <div class="sb-persona-hint">Sua persona aparece aqui assim que você terminar de responder.</div>
+          </div>
+
+          <!-- Skills / Scores -->
+          <div class="sb-divider">
+            <div class="sb-section-title">
+              <span class="sb-section-num">01</span>
+              <span class="sb-section-name">Skills</span>
+            </div>
+            <span class="sb-section-sub-label">4 PILARES</span>
+          </div>
+
+          <!-- Radar -->
+          <div class="sb-radar">
+            <canvas id="radar-chart"></canvas>
+          </div>
+
+          <!-- Score bars -->
+          <div class="sb-scores">
+            <div class="sb-score-row">
+              <span class="sb-score-icon">🛡️</span>
+              <div class="sb-score-inner">
+                <div class="sb-score-name">Segurança</div>
+                <div class="sb-score-track"><div class="sb-score-bar" id="sb-bar-seguranca" style="background:#06B6D4"></div></div>
+              </div>
+              <span class="sb-score-val" id="sb-val-seguranca">0</span>
+            </div>
+            <div class="sb-score-row">
+              <span class="sb-score-icon">📋</span>
+              <div class="sb-score-inner">
+                <div class="sb-score-name">Processos</div>
+                <div class="sb-score-track"><div class="sb-score-bar" id="sb-bar-processos" style="background:#10B981"></div></div>
+              </div>
+              <span class="sb-score-val" id="sb-val-processos">0</span>
+            </div>
+            <div class="sb-score-row">
+              <span class="sb-score-icon">🔗</span>
+              <div class="sb-score-inner">
+                <div class="sb-score-name">Interoperabilidade</div>
+                <div class="sb-score-track"><div class="sb-score-bar" id="sb-bar-interoperabilidade" style="background:#8B5CF6"></div></div>
+              </div>
+              <span class="sb-score-val" id="sb-val-interoperabilidade">0</span>
+            </div>
+            <div class="sb-score-row">
+              <span class="sb-score-icon">🧠</span>
+              <div class="sb-score-inner">
+                <div class="sb-score-name">Inteligência</div>
+                <div class="sb-score-track"><div class="sb-score-bar" id="sb-bar-inteligencia" style="background:#F59E0B"></div></div>
+              </div>
+              <span class="sb-score-val" id="sb-val-inteligencia">0</span>
+            </div>
+          </div>
+
+          <!-- Badges ao vivo -->
+          <div class="sb-badges" id="sb-badges" style="display:none">
+            <div class="sb-badges-title">Conquistas</div>
+            <div class="sb-badges-grid" id="sb-badges-grid"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       TELA 3: RESULTADOS — dark full-page (FSM style)
+  ══════════════════════════════════════════════ -->
+  <div id="screen-results" class="screen">
+
+    <!-- Header fixo -->
+    <header class="rh-header">
+      <div class="rh-logo">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#06B6D4" fill-opacity=".2"/><circle cx="16" cy="16" r="8" fill="#06B6D4" fill-opacity=".5"/><circle cx="16" cy="16" r="3" fill="#06B6D4"/></svg>
+        <span>Neurogram</span>
+      </div>
+      <div class="rh-actions">
+        <button class="rh-btn-outline" id="btn-restart">Refazer diagnóstico</button>
+        <button class="rh-btn-cta" id="btn-whatsapp-header">Receber relatório →</button>
+      </div>
+    </header>
+
+    <!-- Documento de resultado -->
+    <div class="result-doc">
+
+      <!-- ── SEÇÃO TOPO: perfil + persona ── -->
+      <div class="rd-top">
+        <div class="rd-meta">
+          <div class="rd-eyebrow">
+            <span class="rd-dash"></span>
+            <span class="rd-eyebrow-text">DIAGNÓSTICO</span>
+            <span class="rd-eyebrow-date" id="rd-date"></span>
+          </div>
+          <h2 class="rd-title">Maturidade Operacional em EEG</h2>
+          <div class="rd-profile" id="rd-profile"></div>
+        </div>
+        <div class="rd-persona-wrap" id="rd-persona"></div>
+      </div>
+
+      <!-- ── SEÇÃO 01: SKILLS ── -->
+      <div class="rd-section">
+        <div class="rd-section-header">
+          <div class="rd-section-num">01</div>
+          <h3 class="rd-section-title">Skills</h3>
+          <span class="rd-section-sub">4 PILARES</span>
+        </div>
+        <div class="rd-skills-grid">
+          <div class="rd-radar-card">
+            <canvas id="result-radar"></canvas>
+          </div>
+          <div class="rd-pillars" id="rd-pillars"></div>
+        </div>
+      </div>
+
+      <!-- ── SEÇÃO 02: BADGES ── -->
+      <div class="rd-section">
+        <div class="rd-section-header">
+          <div class="rd-section-num">02</div>
+          <h3 class="rd-section-title">Badges</h3>
+          <span class="rd-section-sub" id="rd-badges-count">0 CONQUISTADAS</span>
+        </div>
+        <div id="rd-badges"></div>
+      </div>
+
+      <!-- ── SEÇÃO 03: SWOT ── -->
+      <div class="rd-section">
+        <div class="rd-section-header">
+          <div class="rd-section-num">03</div>
+          <h3 class="rd-section-title">SWOT</h3>
+          <span class="rd-section-sub">ANÁLISE QUALITATIVA</span>
+        </div>
+        <div class="rd-swot" id="rd-swot"></div>
+      </div>
+
+      <!-- ── GATE WHATSAPP ── -->
+      <div class="rd-whatsapp-gate" id="whatsapp-gate">
+        <div class="wg-left">
+          <div class="wg-title">📲 Receba o relatório completo no WhatsApp</div>
+          <div class="wg-desc">Enviaremos um PDF com seu diagnóstico detalhado, recomendações por pilar e próximos passos práticos.</div>
+        </div>
+        <div class="wg-right">
+          <div class="wg-form">
+            <input type="tel" id="wg-input" placeholder="(11) 99999-9999" autocomplete="tel">
+            <button class="btn-whatsapp" id="btn-whatsapp">Receber →</button>
+          </div>
+          <button class="btn-skip" id="btn-skip">Não, obrigado</button>
+        </div>
+      </div>
+
+      <div class="wg-confirm" id="wg-confirm" style="display:none">
+        <span>✅</span> Relatório enviado! Verifique seu WhatsApp em instantes.
+      </div>
+
+    </div>
+  </div>
+
+  <script src="flow.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
