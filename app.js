@@ -640,6 +640,7 @@ async function submitToBackend() {
         score_inteligencia:       state.scores.inteligencia,
         score_geral:              Math.round(avg(state.scores) * 100) / 100,
         persona:                  state.persona?.label,
+        persona_tier:             state.persona?.tier,
         badges:                   state.unlockedBadges,
         swot:                     state.swot,
         answers:                  state.benchmarkAnswers

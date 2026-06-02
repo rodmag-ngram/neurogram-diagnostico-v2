@@ -64,7 +64,11 @@
       "Bash(cp /Users/rodmag/Downloads/logo_neurogram.svg /Users/rodmag/Documents/diagnostico_clinicas/assets/)",
       "Bash(netlify deploy *)",
       "Bash(netlify sites:list)",
-      "Bash(chmod +x /Users/rodmag/Documents/diagnostico_clinicas/deploy.sh)"
+      "Bash(chmod +x /Users/rodmag/Documents/diagnostico_clinicas/deploy.sh)",
+      "Bash(cp /Users/rodmag/Downloads/icone.svg /Users/rodmag/Documents/diagnostico_clinicas/assets/icone_neurogram.svg)",
+      "Bash(cp /Users/rodmag/Downloads/logo.svg /Users/rodmag/Documents/diagnostico_clinicas/assets/logo_neurogram.svg)",
+      "Bash(git push *)",
+      "Bash(brew install *)"
     ]
   }
 }
