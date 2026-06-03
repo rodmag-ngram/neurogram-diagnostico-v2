@@ -3,64 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preview — E-mail Diagnóstico Neurogram</title>
-  <!--
-    ══════════════════════════════════════════════════════════
-    NEUROGRAM — Template de E-mail do Diagnóstico
-    ══════════════════════════════════════════════════════════
-    Tokens HubSpot (substituir ao importar):
-      [NOME]         → {{ contact.firstname }}
-      [PERSONA]      → {{ contact.diagnostico_persona }}
-      [SCORE_GERAL]  → {{ contact.diagnostico_score_geral }}
-      [SCORE_SEG]    → {{ contact.diagnostico_score_seguranca }}
-      [SCORE_PROC]   → {{ contact.diagnostico_score_processos }}
-      [SCORE_INTER]  → {{ contact.diagnostico_score_interoperabilidade }}
-      [SCORE_INTEL]  → {{ contact.diagnostico_score_inteligencia }}
-      [LINK]         → https://neurogram-diagnostico-v2.netlify.app/resultado?slug={{ contact.diagnostico_slug }}
-    ══════════════════════════════════════════════════════════
-  -->
+  <title>Diagnóstico Neurogram — {{ contact.firstname }}</title>
   <style>
-    body { margin: 0; padding: 0; background: #2C3028; font-family: 'Inter', -apple-system, Arial, sans-serif; }
-    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; background: #2C3028; font-family: Arial, sans-serif; }
   </style>
 </head>
 <body style="margin:0;padding:0;background:#2C3028;">
 
-  <!-- Wrapper -->
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#2C3028;min-height:100vh;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#2C3028;">
     <tr>
       <td align="center" style="padding:40px 16px;">
 
-        <!-- Container principal -->
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 
-          <!-- ── HEADER ── -->
+          <!-- HEADER -->
           <tr>
             <td style="padding:0 0 24px 0;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td>
-                    <!-- Logo: em produção usar <img src="URL_DA_LOGO_BRANCA"> -->
-                    <div style="display:inline-flex;align-items:center;gap:10px;">
-                      <svg width="28" height="24" viewBox="0 0 75 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M74.4432 29.244L64.804 10.5678C64.6569 10.2902 64.4257 10.0618 64.142 9.92478L44.3312 0.152719C44.051 0.0156781 43.7322 -0.0300012 43.424 0.0191929L24.1771 3.28709C23.9109 3.33277 23.6517 3.42061 23.4135 3.54711L11.0703 10.1497C10.8111 10.2902 10.5834 10.4835 10.4083 10.7224L0.341736 24.2684C0.0229973 24.6971 -0.0785792 25.2452 0.0615258 25.7618L4.20163 40.8327C4.32772 41.286 4.72002 41.6128 5.18937 41.648L18.2261 42.6354C18.5169 42.6564 18.7831 42.8146 18.9407 43.0605L22.8321 49.006C23.0107 49.2766 23.2664 49.4839 23.5676 49.5963L34.2927 53.6619C34.5308 53.7532 34.7935 53.7638 35.0387 53.69L43.6132 51.4025C43.8653 51.3287 44.1385 51.4165 44.3032 51.6273L50.9722 60.6826C51.424 61.2659 52.3067 61.2413 52.727 60.6369L55.6377 56.357C55.8268 56.0689 56.093 55.837 56.4047 55.6859L62.9196 52.555C63.1158 52.4601 63.2804 52.3055 63.382 52.1123L67.0807 45.2145C67.1788 45.0353 67.3294 44.8913 67.5151 44.8069L70.4748 43.6509C70.7024 43.549 70.8741 43.3487 70.9406 43.1062L74.5658 30.4001C74.6744 30.01 74.6289 29.5954 74.4397 29.2405L74.4432 29.244Z" fill="white" opacity="0.9"/>
-                      </svg>
-                      <span style="color:#fff;font-size:18px;font-weight:800;letter-spacing:-0.3px;">Neurogram</span>
-                    </div>
+                    <img src="https://neurogram-diagnostico-v2.netlify.app/assets/logo_neurogram.svg"
+                         alt="Neurogram" height="26"
+                         style="display:block;filter:brightness(0) invert(1);">
                   </td>
                   <td align="right">
-                    <span style="color:rgba(255,255,255,0.3);font-size:12px;font-weight:500;">DIAGNÓSTICO · JUN 2026</span>
+                    <span style="color:rgba(255,255,255,0.3);font-size:12px;font-weight:500;">DIAGNÓSTICO · {{ content.publish_date_localized }}</span>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ── CARD PRINCIPAL ── -->
+          <!-- CARD PRINCIPAL -->
           <tr>
             <td style="background:#21241C;border-radius:20px;overflow:hidden;">
 
-              <!-- Faixa de topo accent -->
               <div style="height:4px;background:linear-gradient(90deg,#A2C96E,#7DAE4A);"></div>
 
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -70,14 +47,13 @@
                     <!-- Saudação -->
                     <p style="margin:0 0 8px;color:rgba(255,255,255,0.4);font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Diagnóstico pronto</p>
                     <h1 style="margin:0 0 16px;color:#fff;font-size:28px;font-weight:900;line-height:1.2;letter-spacing:-0.5px;">
-                      Oi, <span style="color:#A2C96E;">Ana</span>!
-                      <!-- HubSpot: Oi, {{ contact.firstname }}! -->
+                      Oi, <span style="color:#A2C96E;">{{ contact.firstname }}</span>!
                     </h1>
                     <p style="margin:0 0 32px;color:rgba(255,255,255,0.55);font-size:15px;line-height:1.7;">
                       Terminei de processar suas respostas. O diagnóstico de maturidade operacional da sua clínica está pronto — confira os resultados abaixo.
                     </p>
 
-                    <!-- ── PERSONA ── -->
+                    <!-- PERSONA -->
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#A2C96E;border-radius:14px;margin-bottom:28px;">
                       <tr>
                         <td style="padding:20px 24px;">
@@ -85,12 +61,11 @@
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr>
                               <td style="padding-right:12px;">
-                                <div style="width:40px;height:40px;background:rgba(0,0,0,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;text-align:center;line-height:40px;">✦</div>
+                                <div style="width:40px;height:40px;background:rgba(0,0,0,0.2);border-radius:50%;text-align:center;line-height:40px;font-size:20px;">✦</div>
                               </td>
                               <td>
                                 <p style="margin:0;color:#fff;font-size:17px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.3px;">
-                                  🔗 Ecossistema Integrado
-                                  <!-- HubSpot: {{ contact.diagnostico_persona }} -->
+                                  {{ contact.diagnostico_persona }}
                                 </p>
                               </td>
                             </tr>
@@ -99,7 +74,7 @@
                       </tr>
                     </table>
 
-                    <!-- ── SCORE GERAL ── -->
+                    <!-- SCORE GERAL -->
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
                       <tr>
                         <td style="background:#2C3028;border-radius:12px;padding:20px 24px;">
@@ -111,8 +86,7 @@
                               </td>
                               <td align="right">
                                 <span style="color:#A2C96E;font-size:42px;font-weight:900;letter-spacing:-2px;line-height:1;">
-                                  76
-                                  <!-- HubSpot: {{ contact.diagnostico_score_geral }} -->
+                                  {{ contact.diagnostico_score_geral }}
                                 </span>
                               </td>
                             </tr>
@@ -121,11 +95,11 @@
                       </tr>
                     </table>
 
-                    <!-- ── SCORES POR PILAR ── -->
+                    <!-- SCORES POR PILAR -->
                     <p style="margin:0 0 14px;color:rgba(255,255,255,0.4);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;">Scores por pilar</p>
 
                     <!-- Segurança -->
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
                       <tr>
                         <td style="background:#2C3028;border-radius:10px;padding:14px 18px;">
                           <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -134,13 +108,11 @@
                               <td>
                                 <p style="margin:0 0 6px;color:#fff;font-size:13px;font-weight:700;">Segurança</p>
                                 <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:4px;overflow:hidden;">
-                                  <div style="background:#A2C96E;height:4px;width:82%;border-radius:99px;"></div>
-                                  <!-- HubSpot: width: {{ contact.diagnostico_score_seguranca }}% -->
+                                  <div style="background:#A2C96E;height:4px;width:{{ contact.diagnostico_score_seguranca }}%;border-radius:99px;"></div>
                                 </div>
                               </td>
-                              <td width="36" align="right" style="padding-left:12px;">
-                                <span style="color:#A2C96E;font-size:18px;font-weight:900;">82</span>
-                                <!-- HubSpot: {{ contact.diagnostico_score_seguranca }} -->
+                              <td width="40" align="right" style="padding-left:12px;">
+                                <span style="color:#A2C96E;font-size:18px;font-weight:900;">{{ contact.diagnostico_score_seguranca }}</span>
                               </td>
                             </tr>
                           </table>
@@ -149,7 +121,7 @@
                     </table>
 
                     <!-- Processos -->
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
                       <tr>
                         <td style="background:#2C3028;border-radius:10px;padding:14px 18px;">
                           <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -158,11 +130,11 @@
                               <td>
                                 <p style="margin:0 0 6px;color:#fff;font-size:13px;font-weight:700;">Processos</p>
                                 <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:4px;overflow:hidden;">
-                                  <div style="background:#10B981;height:4px;width:75%;border-radius:99px;"></div>
+                                  <div style="background:#10B981;height:4px;width:{{ contact.diagnostico_score_processos }}%;border-radius:99px;"></div>
                                 </div>
                               </td>
-                              <td width="36" align="right" style="padding-left:12px;">
-                                <span style="color:#10B981;font-size:18px;font-weight:900;">75</span>
+                              <td width="40" align="right" style="padding-left:12px;">
+                                <span style="color:#10B981;font-size:18px;font-weight:900;">{{ contact.diagnostico_score_processos }}</span>
                               </td>
                             </tr>
                           </table>
@@ -171,7 +143,7 @@
                     </table>
 
                     <!-- Interoperabilidade -->
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
                       <tr>
                         <td style="background:#2C3028;border-radius:10px;padding:14px 18px;">
                           <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -180,11 +152,11 @@
                               <td>
                                 <p style="margin:0 0 6px;color:#fff;font-size:13px;font-weight:700;">Interoperabilidade</p>
                                 <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:4px;overflow:hidden;">
-                                  <div style="background:#8B5CF6;height:4px;width:91%;border-radius:99px;"></div>
+                                  <div style="background:#8B5CF6;height:4px;width:{{ contact.diagnostico_score_interoperabilidade }}%;border-radius:99px;"></div>
                                 </div>
                               </td>
-                              <td width="36" align="right" style="padding-left:12px;">
-                                <span style="color:#8B5CF6;font-size:18px;font-weight:900;">91</span>
+                              <td width="40" align="right" style="padding-left:12px;">
+                                <span style="color:#8B5CF6;font-size:18px;font-weight:900;">{{ contact.diagnostico_score_interoperabilidade }}</span>
                               </td>
                             </tr>
                           </table>
@@ -202,11 +174,11 @@
                               <td>
                                 <p style="margin:0 0 6px;color:#fff;font-size:13px;font-weight:700;">Inteligência</p>
                                 <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:4px;overflow:hidden;">
-                                  <div style="background:#F59E0B;height:4px;width:58%;border-radius:99px;"></div>
+                                  <div style="background:#F59E0B;height:4px;width:{{ contact.diagnostico_score_inteligencia }}%;border-radius:99px;"></div>
                                 </div>
                               </td>
-                              <td width="36" align="right" style="padding-left:12px;">
-                                <span style="color:#F59E0B;font-size:18px;font-weight:900;">58</span>
+                              <td width="40" align="right" style="padding-left:12px;">
+                                <span style="color:#F59E0B;font-size:18px;font-weight:900;">{{ contact.diagnostico_score_inteligencia }}</span>
                               </td>
                             </tr>
                           </table>
@@ -214,15 +186,14 @@
                       </tr>
                     </table>
 
-                    <!-- ── CTA PRINCIPAL ── -->
+                    <!-- CTA PRINCIPAL -->
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
                       <tr>
                         <td align="center">
-                          <a href="https://neurogram-diagnostico-v2.netlify.app/resultado?slug=SLUG"
+                          <a href="https://neurogram-diagnostico-v2.netlify.app/resultado?slug={{ contact.diagnostico_slug }}"
                              style="display:inline-block;background:#A2C96E;color:#21241C;font-size:15px;font-weight:800;text-decoration:none;padding:16px 40px;border-radius:999px;letter-spacing:-0.2px;">
                             Ver meu diagnóstico completo →
                           </a>
-                          <!-- HubSpot: href="...?slug={{ contact.diagnostico_slug }}" -->
                         </td>
                       </tr>
                     </table>
@@ -234,14 +205,14 @@
                   </td>
                 </tr>
 
-                <!-- ── DIVIDER ── -->
+                <!-- DIVIDER -->
                 <tr>
                   <td style="padding:0 40px;">
                     <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
                   </td>
                 </tr>
 
-                <!-- ── BLOCO CTA SECUNDÁRIO ── -->
+                <!-- CTA SECUNDÁRIO -->
                 <tr>
                   <td style="padding:32px 40px 36px;">
                     <p style="margin:0 0 8px;color:rgba(255,255,255,0.35);font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;">Próximo passo</p>
@@ -262,7 +233,7 @@
             </td>
           </tr>
 
-          <!-- ── FOOTER ── -->
+          <!-- FOOTER -->
           <tr>
             <td style="padding:28px 0 40px;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -272,10 +243,7 @@
                       Você recebeu esse e-mail porque realizou o Diagnóstico de Maturidade Operacional da Neurogram.
                     </p>
                     <p style="margin:0 0 6px;color:rgba(255,255,255,0.15);font-size:11px;line-height:1.6;">
-                      {{ site_settings.company_name }} ·
-                      {{ site_settings.company_street_address_1 }} ·
-                      {{ site_settings.company_city }},
-                      {{ site_settings.company_state }}
+                      {{ site_settings.company_name }} · {{ site_settings.company_street_address_1 }} · {{ site_settings.company_city }}, {{ site_settings.company_state }}
                     </p>
                     <p style="margin:0;color:rgba(255,255,255,0.15);font-size:11px;">
                       © 2026 Neurogram™ · Todos os direitos reservados
