@@ -155,15 +155,24 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
     }
 
-    // Inserção principal
+    // Inserção / atualização principal
     const answers = body.answers || {};
     const swot    = body.swot    || {};
 
-    // Salva no Supabase
-    const { error } = await supabase.from('diagnostics').insert({
-      slug:            body.slug,
-      nome:            body.nome,
+    // Busca slug existente para manter o mesmo link sempre
+    const { data: existingRow } = await supabase
+      .from('diagnostics')
+      .select('slug')
+      .eq('email', body.email)
+      .single();
+
+    const slug = existingRow?.slug || body.slug;
+
+    // Upsert por email — mantém slug original, atualiza tudo o mais
+    const { error } = await supabase.from('diagnostics').upsert({
+      slug,
       email:           body.email,
+      nome:            body.nome,
       funcao:          body.funcao,
       instituicao:     body.instituicao,
       estado:          body.estado,
@@ -207,8 +216,9 @@ exports.handler = async (event) => {
 
     if (error) throw error;
 
-    // Upsert no HubSpot (aguarda para garantir execução em serverless)
-    await upsertHubSpotContact(body).catch(e => console.error('HubSpot error:', e));
+    // Passa o slug correto para o HubSpot
+    const bodyWithSlug = { ...body, slug };
+    await upsertHubSpotContact(bodyWithSlug).catch(e => console.error('HubSpot error:', e));
 
     return {
       statusCode: 200,
