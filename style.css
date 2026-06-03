@@ -523,7 +523,7 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 2px 12px rgba(0,0,0,.04);
 }
 
-/* Bolha do usuário — accent suave */
+/* Bolha do usuário — sutil, levemente mais escura que o fundo */
 .msg-user {
   display: flex;
   justify-content: flex-end;
@@ -540,9 +540,9 @@ body {
 }
 
 .msg-user .msg-bubble {
-  background: var(--accent-light);
+  background: #CDD3C7;
   border-radius: 18px 4px 18px 18px;
-  color: var(--accent-dark);
+  color: #2A2F24;
   font-weight: 500;
   box-shadow: none;
   max-width: 100%;
