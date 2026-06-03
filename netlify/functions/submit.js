@@ -14,53 +14,79 @@ const headers = {
   'Access-Control-Allow-Origin': '*'
 };
 
-// ── HubSpot upsert ────────────────────────────────────────────
+// ── HubSpot helpers ───────────────────────────────────────────
+
+async function getHubSpotContact(email) {
+  const res = await fetch(
+    `https://api.hubapi.com/crm/v3/objects/contacts/search`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }],
+        properties: ['diagnostico_primeira_resposta', 'diagnostico_count_respostas'],
+        limit: 1
+      })
+    }
+  );
+  const data = await res.json();
+  return data.results?.[0] || null;
+}
+
 async function upsertHubSpotContact(body) {
   if (!HS_TOKEN || !body.email) return;
 
-  const now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const nowMs   = Date.now();
+  const badges  = (body.badges || []).map(b => b.id).join(';'); // checkbox usa ; como separador
+
+  // Verifica se o contato já existe para lógica de first/last/count
+  const existing = await getHubSpotContact(body.email);
+  const isNew    = !existing;
+  const prevCount = parseInt(existing?.properties?.diagnostico_count_respostas || '0', 10);
+  const primeiraResposta = existing?.properties?.diagnostico_primeira_resposta || String(nowMs);
 
   const properties = {
-    // Campos padrão
+    // Campos padrão HubSpot
     firstname:   (body.nome || '').split(' ')[0],
     lastname:    (body.nome || '').split(' ').slice(1).join(' ') || '',
     email:       body.email,
-    jobtitle:    body.funcao       || '',
-    company:     body.instituicao  || '',
-    state:       body.estado       || '',
+    jobtitle:    body.funcao      || '',
+    company:     body.instituicao || '',
+    state:       body.estado      || '',
 
-    // Campos customizados diagnostico_
+    // Scores
     diagnostico_score_seguranca:          body.score_seguranca          ?? '',
     diagnostico_score_processos:          body.score_processos          ?? '',
     diagnostico_score_interoperabilidade: body.score_interoperabilidade ?? '',
     diagnostico_score_inteligencia:       body.score_inteligencia       ?? '',
     diagnostico_score_geral:              body.score_geral              ?? '',
-    diagnostico_persona:                  body.persona                  || '',
-    diagnostico_persona_tier:             body.persona_tier             || '',
-    diagnostico_badges_count:             (body.badges || []).length,
-    diagnostico_badges:                   (body.badges || []).map(b => b.label).join(', '),
-    diagnostico_funcao:                   body.funcao                   || '',
-    diagnostico_instituicao:              body.instituicao              || '',
-    diagnostico_estado:                   body.estado                   || '',
-    diagnostico_volume_mensal:            body.volume_mensal            || '',
-    diagnostico_objetivo:                 body.objetivo                 || '',
-    diagnostico_slug:                     body.slug                     || '',
-    diagnostico_data:                     now,
+
+    // Resultado
+    diagnostico_persona:      body.persona      || '',
+    diagnostico_persona_tier: body.persona_tier || '',
+    diagnostico_badges_count: (body.badges || []).length,
+    diagnostico_badges:       badges,
+
+    // Perfil
+    diagnostico_funcao:        body.funcao        || '',
+    diagnostico_instituicao:   body.instituicao   || '',
+    diagnostico_estado:        body.estado        || '',
+    diagnostico_volume_mensal: body.volume_mensal || '',
+    diagnostico_objetivo:      body.objetivo      || '',
+    diagnostico_slug:          body.slug          || '',
+    diagnostico_data:          String(nowMs),
+
+    // Datas e contador
+    diagnostico_ultima_resposta:   String(nowMs),
+    diagnostico_primeira_resposta: primeiraResposta,  // mantém a original se já existe
+    diagnostico_count_respostas:   prevCount + 1,
   };
 
-  // Upsert por email (cria ou atualiza)
   const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HS_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      inputs: [{
-        idProperty: 'email',
-        id: body.email,
-        properties
-      }]
+      inputs: [{ idProperty: 'email', id: body.email, properties }]
     })
   });
 
