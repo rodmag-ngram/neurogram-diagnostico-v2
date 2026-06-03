@@ -207,8 +207,8 @@ exports.handler = async (event) => {
 
     if (error) throw error;
 
-    // Upsert no HubSpot (não bloqueia a resposta)
-    upsertHubSpotContact(body).catch(e => console.error('HubSpot error:', e));
+    // Upsert no HubSpot (aguarda para garantir execução em serverless)
+    await upsertHubSpotContact(body).catch(e => console.error('HubSpot error:', e));
 
     return {
       statusCode: 200,
