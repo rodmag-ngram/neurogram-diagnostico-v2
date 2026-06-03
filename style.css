@@ -1663,7 +1663,10 @@ body {
   /* ── Welcome ── */
   #screen-welcome { flex-direction: column; min-height: 100vh; }
 
+  .welcome-right { order: 1; }
+
   .welcome-left {
+    order: 2;
     flex: none;
     padding: 24px 20px;
     max-height: 260px;
