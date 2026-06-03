@@ -264,17 +264,25 @@
 
           <!-- ── FOOTER ── -->
           <tr>
-            <td style="padding:28px 0 0;">
+            <td style="padding:28px 0 40px;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td>
-                    <p style="margin:0;color:rgba(255,255,255,0.2);font-size:12px;line-height:1.6;">
-                      Você recebeu esse e-mail porque realizou o Diagnóstico de Maturidade Operacional da Neurogram.<br>
+                    <p style="margin:0 0 6px;color:rgba(255,255,255,0.2);font-size:12px;line-height:1.6;">
+                      Você recebeu esse e-mail porque realizou o Diagnóstico de Maturidade Operacional da Neurogram.
+                    </p>
+                    <p style="margin:0 0 6px;color:rgba(255,255,255,0.15);font-size:11px;line-height:1.6;">
+                      {{ site_settings.company_name }} ·
+                      {{ site_settings.company_street_address_1 }} ·
+                      {{ site_settings.company_city }},
+                      {{ site_settings.company_state }}
+                    </p>
+                    <p style="margin:0;color:rgba(255,255,255,0.15);font-size:11px;">
                       © 2026 Neurogram™ · Todos os direitos reservados
                     </p>
                   </td>
-                  <td align="right">
-                    <a href="#" style="color:rgba(255,255,255,0.2);font-size:12px;text-decoration:none;">Cancelar inscrição</a>
+                  <td align="right" valign="top">
+                    <a href="{{ unsubscribe_link }}" style="color:rgba(255,255,255,0.2);font-size:12px;text-decoration:none;">Cancelar inscrição</a>
                   </td>
                 </tr>
               </table>
