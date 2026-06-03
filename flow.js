@@ -365,7 +365,7 @@ const PERSONAS = [
     id: 'escalar',
     label: '🚀 Pronta para Escalar',
     tier: 'elite',
-    text: 'Sua clínica possui bases sólidas para absorver crescimento sem aumentar proporcionalmente a complexidade operacional. Processos bem definidos e uma operação consistente permitem expandir volume, equipe e serviços com mais previsibilidade. O próximo passo é fortalecer a inteligência operacional para sustentar esse crescimento no longo prazo.'
+    text: 'Sua clínica possui bases sólidas para crescer sem aumentar proporcionalmente a complexidade operacional. A maioria das dimensões opera em alto nível, criando uma operação consistente e previsível. O próximo passo é fortalecer as dimensões ainda em desenvolvimento para sustentar esse crescimento com segurança no longo prazo.'
   },
   // NÍVEL 2 — DOMINÂNCIA (por pilar)
   {
@@ -477,30 +477,37 @@ function getPillarText(pillar, score) {
 }
 
 function detectPersona(scores) {
-  // NÍVEL 1 — ELITE
-  if (Object.values(scores).every(s => s >= 85)) return PERSONAS.find(p => p.id === 'referencia');
-  if (Object.values(scores).every(s => s >= 70)) return PERSONAS.find(p => p.id === 'escalar');
+  const vals    = Object.values(scores);
+  const average = avg(scores);
+  const minScore = Math.min(...vals);
+  const maxScore = Math.max(...vals);
 
-  // NÍVEL 2 — DOMINÂNCIA
-  // Encontra o score máximo e todos os pilares empatados no topo
-  const maxScore = Math.max(...Object.values(scores));
-  const topPillars = Object.entries(scores).filter(([, s]) => s === maxScore).map(([p]) => p);
-  // Score abaixo dos empatados
-  const belowScores = Object.entries(scores).filter(([p]) => !topPillars.includes(p)).map(([, s]) => s);
-  const belowMax = belowScores.length > 0 ? Math.max(...belowScores) : 0;
+  // ── NÍVEL 1 — ELITE ────────────────────────────────────────
+  // Referência: todos os pilares ≥ 85
+  if (vals.every(s => s >= 85)) return PERSONAS.find(p => p.id === 'referencia');
 
-  if (maxScore - belowMax >= 10) {
-    // Há dominância. Aplicar tiebreaker por prioridade narrativa.
-    const priority = ['interoperabilidade', 'processos', 'inteligencia', 'seguranca'];
-    for (const p of priority) {
-      if (topPillars.includes(p)) {
-        return PERSONAS.find(pe => pe.pillar === p);
-      }
+  // Pronta para Escalar:
+  //   todos ≥ 70  OU  (média ≥ 75 E mínimo ≥ 55)
+  if (vals.every(s => s >= 70) || (average >= 75 && minScore >= 55)) {
+    return PERSONAS.find(p => p.id === 'escalar');
+  }
+
+  // ── NÍVEL 2 — DOMINÂNCIA ───────────────────────────────────
+  // Um pilar é dominante se:
+  //   score ≥ 70  E  está pelo menos 20pts acima da média dos outros 3
+  const priority = ['interoperabilidade', 'processos', 'inteligencia', 'seguranca'];
+
+  for (const p of priority) {
+    const pScore  = scores[p];
+    const others  = Object.entries(scores).filter(([k]) => k !== p).map(([, v]) => v);
+    const avgOthers = others.reduce((a, b) => a + b, 0) / others.length;
+
+    if (pScore >= 70 && (pScore - avgOthers) >= 20) {
+      return PERSONAS.find(pe => pe.pillar === p);
     }
   }
 
-  // NÍVEL 3 — EQUILÍBRIO
-  const average = avg(scores);
+  // ── NÍVEL 3 — EQUILÍBRIO ───────────────────────────────────
   if (average >= 55) return PERSONAS.find(p => p.id === 'evolucao');
   if (average >= 35) return PERSONAS.find(p => p.id === 'transformacao');
   return PERSONAS.find(p => p.id === 'artesanal');
