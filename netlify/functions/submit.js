@@ -24,13 +24,24 @@ async function getHubSpotContact(email) {
       headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }],
-        properties: ['diagnostico_primeira_resposta', 'diagnostico_count_respostas'],
+        properties: ['diagnostico_primeira_resposta', 'diagnostico_count_respostas', 'diagnostico_ultima_resposta'],
         limit: 1
       })
     }
   );
   const data = await res.json();
   return data.results?.[0] || null;
+}
+
+// Verifica se deve enviar e-mail (primeira vez OU última resposta > 24h atrás)
+function shouldSendEmail(existing, nowMs) {
+  if (!existing) return true; // contato novo → sempre envia
+
+  const ultimaResposta = parseInt(existing.properties?.diagnostico_ultima_resposta || '0', 10);
+  if (!ultimaResposta) return true; // nunca teve resposta registrada
+
+  const VINTE_QUATRO_HORAS = 24 * 60 * 60 * 1000;
+  return (nowMs - ultimaResposta) > VINTE_QUATRO_HORAS;
 }
 
 async function upsertHubSpotContact(body) {
@@ -78,8 +89,11 @@ async function upsertHubSpotContact(body) {
 
     // Datas e contador
     diagnostico_ultima_resposta:   String(nowMs),
-    diagnostico_primeira_resposta: primeiraResposta,  // mantém a original se já existe
+    diagnostico_primeira_resposta: primeiraResposta,
     diagnostico_count_respostas:   prevCount + 1,
+
+    // Gatilho de e-mail — true se for a primeira vez ou se passou 24h
+    diagnostico_enviar_email: shouldSendEmail(existing, nowMs) ? 'true' : 'false',
   };
 
   const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {

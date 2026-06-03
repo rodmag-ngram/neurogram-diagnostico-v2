@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seu Diagnóstico — Neurogram</title>
+  <meta name="description" content="Resultado do Diagnóstico de Maturidade Operacional — Neurogram">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* Overrides específicos para a página de resultado por slug */
+    body { background: var(--sidebar-bg); }
+
+    .result-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 16px;
+      color: rgba(255,255,255,.5);
+      font-size: 15px;
+    }
+
+    .result-loading .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(162,201,110,.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result-error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 12px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .result-error h2 { color: #fff; font-size: 22px; }
+    .result-error p  { color: rgba(255,255,255,.5); font-size: 15px; }
+    .result-error a  {
+      margin-top: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div class="result-loading" id="result-loading">
+    <div class="spinner"></div>
+    <span>Carregando seu diagnóstico…</span>
+  </div>
+
+  <!-- Erro -->
+  <div class="result-error" id="result-error" style="display:none">
+    <h2>Diagnóstico não encontrado</h2>
+    <p>O link pode ter expirado ou estar incorreto.</p>
+    <a href="/">Fazer um novo diagnóstico →</a>
+  </div>
+
+  <!-- Resultado (mesma estrutura da tela 3) -->
+  <div id="screen-results" class="screen" style="display:none">
+
+    <header class="rh-header">
+      <div class="rh-logo">
+        <img src="assets/logo_neurogram.svg" alt="Neurogram" class="rh-logo-img">
+      </div>
+      <a href="/" class="rh-btn-cta" style="text-decoration:none">Fazer meu diagnóstico →</a>
+    </header>
+
+    <div class="result-doc">
+
+      <!-- Topo: perfil + persona -->
+      <div class="rd-top">
+        <div class="rd-meta">
+          <div class="rd-eyebrow">
+            <span class="rd-dash"></span>
+            <span class="rd-eyebrow-text">DIAGNÓSTICO</span>
+            <span class="rd-eyebrow-date" id="rd-date"></span>
+          </div>
+          <h2 class="rd-title">Maturidade Operacional em EEG</h2>
+          <div class="rd-profile" id="rd-profile"></div>
+        </div>
+        <div class="rd-persona-wrap" id="rd-persona"></div>
+      </div>
+
+      <!-- Skills -->
+      <div class="rd-section">
+        <div class="rd-section-header">
+          <div class="rd-section-num">01</div>
+          <h3 class="rd-section-title">Skills</h3>
+          <span class="rd-section-sub">4 PILARES</span>
+        </div>
+        <div class="rd-skills-grid">
+          <div class="rd-radar-card">
+            <canvas id="result-radar"></canvas>
+          </div>
+          <div class="rd-pillars" id="rd-pillars"></div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="rd-section">
+        <div class="rd-section-header">
+          <div class="rd-section-num">02</div>
+          <h3 class="rd-section-title">Badges</h3>
+          <span class="rd-section-sub" id="rd-badges-count">0 CONQUISTADAS</span>
+        </div>
+        <div id="rd-badges"></div>
+      </div>
+
+      <!-- SWOT -->
+      <div class="rd-section">
+        <div class="rd-section-header">
+          <div class="rd-section-num">03</div>
+          <h3 class="rd-section-title">SWOT</h3>
+          <span class="rd-section-sub">ANÁLISE QUALITATIVA</span>
+        </div>
+        <div class="rd-swot" id="rd-swot"></div>
+      </div>
+
+      <!-- CTA -->
+      <div class="rd-whatsapp-gate">
+        <div class="wg-left">
+          <div class="wg-title">Quer saber como evoluir cada dimensão?</div>
+          <div class="wg-desc">Nosso time pode te mostrar como a Neurogram resolve exatamente o que apareceu como gargalo no seu diagnóstico.</div>
+        </div>
+        <div class="wg-right">
+          <a href="https://neurogram.com" target="_blank" class="btn-whatsapp" style="text-decoration:none;display:inline-block">Falar com o time →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="flow.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://jwfuajkxucvupmdokrrw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3ZnVhamt4dWN2dXBtZG9rcnJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjU1MTMsImV4cCI6MjA5NjAwMTUxM30.tr3ZesM6vVn6zmSXIyfoAw-rFi10hjHTBT0eRrJYDV8';
+
+    const PILLAR_COLORS = {
+      seguranca: '#A2C96E', processos: '#10B981',
+      interoperabilidade: '#8B5CF6', inteligencia: '#F59E0B'
+    };
+
+    const ALL_BADGES = [
+      ...BENCHMARK_QUESTIONS.map(q => q.badge),
+      ...SPECIAL_BADGES.map(b => ({ id: b.id, label: b.label }))
+    ];
+
+    async function loadResult() {
+      const slug = new URLSearchParams(window.location.search).get('slug');
+      if (!slug) return showError();
+
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/diagnostics?slug=eq.${slug}&select=*`,
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+        );
+        const rows = await res.json();
+        if (!rows.length) return showError();
+        renderResult(rows[0]);
+      } catch(e) {
+        showError();
+      }
+    }
+
+    function showError() {
+      document.getElementById('result-loading').style.display = 'none';
+      document.getElementById('result-error').style.display = 'flex';
+    }
+
+    function renderResult(d) {
+      document.getElementById('result-loading').style.display = 'none';
+      const el = document.getElementById('screen-results');
+      el.style.display = 'block';
+      el.classList.add('active');
+
+      const scores = {
+        seguranca:          d.score_seguranca,
+        processos:          d.score_processos,
+        interoperabilidade: d.score_interoperabilidade,
+        inteligencia:       d.score_inteligencia
+      };
+
+      // Data
+      const dt = new Date(d.created_at);
+      const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      document.getElementById('rd-date').textContent = `${months[dt.getMonth()].toUpperCase()} · ${dt.getFullYear()}`;
+
+      // Perfil
+      const profileRows = [
+        { icon: '👤', label: 'Nome',        val: d.nome },
+        { icon: '💼', label: 'Função',      val: d.funcao },
+        { icon: '🏥', label: 'Instituição', val: d.instituicao },
+        { icon: '📊', label: 'Volume',      val: d.volume_mensal }
+      ];
+      document.getElementById('rd-profile').innerHTML = profileRows.map(r => `
+        <div class="rdp-row">
+          <div class="rdp-icon">${r.icon}</div>
+          <span class="rdp-label">${r.label}</span>
+          <span class="rdp-value">${r.val || '—'}</span>
+        </div>
+      `).join('');
+
+      // Persona
+      const tiers = { elite: 'Elite', dominancia: 'Especialista', equilibrio: 'Em desenvolvimento' };
+      document.getElementById('rd-persona').innerHTML = `
+        <div class="rd-persona-card">
+          <div class="rdpc-label">Persona — ${tiers[d.persona_tier] || ''}</div>
+          <div class="rdpc-icon-row">
+            <div class="rdpc-icon">✦</div>
+            <div class="rdpc-name">${d.persona || ''}</div>
+          </div>
+          <div class="rdpc-text">${getPersonaText(d.persona)}</div>
+        </div>
+      `;
+
+      // Radar
+      new Chart(document.getElementById('result-radar').getContext('2d'), {
+        type: 'radar',
+        data: {
+          labels: ['Segurança','Processos','Interop.','Inteligência'],
+          datasets: [{
+            data: [scores.seguranca, scores.processos, scores.interoperabilidade, scores.inteligencia],
+            backgroundColor: 'rgba(162,201,110,.15)',
+            borderColor: '#A2C96E',
+            borderWidth: 2,
+            pointBackgroundColor: Object.values(PILLAR_COLORS),
+            pointBorderColor: 'rgba(255,255,255,.2)',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            r: {
+              beginAtZero: true, min: 0, max: 100,
+              ticks: { display: false },
+              grid: { color: 'rgba(255,255,255,.07)' },
+              pointLabels: { font: { size: 11, family: 'Inter', weight: '700' }, color: '#BDC2B7' }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // Pilares
+      const pillarsConfig = [
+        { key: 'seguranca',          icon: '🛡️', name: 'Segurança' },
+        { key: 'processos',          icon: '📋', name: 'Processos' },
+        { key: 'interoperabilidade', icon: '🔗', name: 'Interoperabilidade' },
+        { key: 'inteligencia',       icon: '🧠', name: 'Inteligência' }
+      ];
+      document.getElementById('rd-pillars').innerHTML = pillarsConfig.map(p => {
+        const score = scores[p.key];
+        const color = PILLAR_COLORS[p.key];
+        const text  = getPillarText(p.key, score);
+        return `
+          <div class="rdp-card">
+            <div>
+              <div class="rdpc-top">
+                <div class="rdpc-pillar-icon">${p.icon}</div>
+                <span class="rdpc-pillar-name">${p.name}</span>
+              </div>
+              <div class="rdpc-bar-wrap">
+                <div class="rdpc-bar" style="width:${score}%;background:${color}"></div>
+              </div>
+              <div class="rdpc-desc">${text}</div>
+            </div>
+            <div class="rdpc-score-big" style="color:${getScoreColor(score)}">${score}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Badges
+      const unlockedIds = new Set((d.badges || []).map(b => b.id));
+      const totalUnlocked = unlockedIds.size;
+      document.getElementById('rd-badges-count').textContent = `${totalUnlocked} CONQUISTADA${totalUnlocked !== 1 ? 'S' : ''}`;
+      document.getElementById('rd-badges').innerHTML = `
+        <div class="rd-badges-counter">${totalUnlocked} / ${ALL_BADGES.length}</div>
+        <div class="rd-badges-grid">
+          ${ALL_BADGES.map(b => {
+            const isUnlocked = unlockedIds.has(b.id);
+            const parts = b.label.split(' ');
+            return `
+              <div class="rdb-card ${isUnlocked ? 'unlocked' : ''}">
+                <div class="rdb-icon">${parts[0]}</div>
+                <div class="rdb-name">${parts.slice(1).join(' ')}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      // SWOT
+      const swotCfg = [
+        { key: 'forcas',        icon: '💪', label: 'Forças',        cls: 'rds-forcas' },
+        { key: 'fraquezas',     icon: '🔴', label: 'Fraquezas',     cls: 'rds-fraquezas' },
+        { key: 'oportunidades', icon: '🎯', label: 'Oportunidades', cls: 'rds-oportunidades' },
+        { key: 'alertas',       icon: '⚠️', label: 'Alertas',       cls: 'rds-alertas' }
+      ];
+      document.getElementById('rd-swot').innerHTML = swotCfg.map(s => {
+        const items = d[`swot_${s.key}`] || [];
+        const inner = items.length
+          ? items.map(t => `<div class="rds-item"><div class="rds-dot"></div><span>${t.text || t}</span></div>`).join('')
+          : `<div class="rds-empty">Nenhuma identificada.</div>`;
+        return `
+          <div class="rds-box ${s.cls}">
+            <div class="rds-header">
+              <div class="rds-circle">${s.icon}</div>
+              <span class="rds-title">${s.label}</span>
+            </div>
+            <div class="rds-divider"></div>
+            <div class="rds-items">${inner}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getPersonaText(label) {
+      const p = PERSONAS.find(p => p.label === label);
+      return p ? p.text : '';
+    }
+
+    loadResult();
+  </script>
+</body>
+</html>
