@@ -1630,20 +1630,19 @@ body {
 /* ══════════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════════ */
+/* ── Tablet ───────────────────────────────────────────────── */
 @media (max-width: 960px) {
+  /* Welcome */
   #screen-welcome { flex-direction: column; }
-  .welcome-left { flex: none; padding: 40px 24px; }
-  .welcome-right { padding: 40px 24px; }
+  .welcome-left { flex: none; padding: 32px 24px; max-height: 400px; }
+  .welcome-right { padding: 40px 32px; }
   .welcome-copy h1 { font-size: 36px; }
 
-  .assessment-layout { grid-template-columns: 1fr; }
-  .chat-panel { padding: 32px 24px 100px; max-height: none; }
-  .sidebar-panel { max-height: 300px; position: relative; top: auto; }
-  .sb-radar { display: none; }
-
+  /* Resultado */
   .result-doc { padding: 32px 20px 80px; }
   .rd-top { grid-template-columns: 1fr; }
   .rd-skills-grid { grid-template-columns: 1fr; }
+  .rd-radar-card { height: 320px; }
   .rd-badges-grid { grid-template-columns: repeat(4, 1fr); }
   .rd-swot { grid-template-columns: 1fr; }
   .rd-whatsapp-gate { flex-direction: column; gap: 20px; }
@@ -1651,10 +1650,124 @@ body {
   .wg-form input { width: 100%; }
 }
 
-@media (max-width: 700px) {
-  .rd-badges-grid { grid-template-columns: repeat(3, 1fr); }
-  .rh-header { padding: 12px 20px; }
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* ── Welcome ── */
+  #screen-welcome { flex-direction: column; min-height: 100vh; }
+
+  .welcome-left {
+    flex: none;
+    padding: 24px 20px;
+    max-height: 260px;
+    background: var(--sidebar-bg);
+  }
+
+  .welcome-card-outer {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 16px;
+  }
+
+  .welcome-card-inner { max-height: 208px; }
+
+  .welcome-right {
+    flex: 1;
+    padding: 32px 24px 48px;
+    background: var(--bg);
+  }
+
+  .welcome-copy h1 { font-size: 28px; letter-spacing: -1px; margin-bottom: 14px; }
+  .welcome-copy p  { font-size: 15px; margin-bottom: 20px; }
+  .wc-logo         { height: 24px; margin-bottom: 16px; }
+  .wc-stats        { gap: 14px; margin-bottom: 24px; font-size: 13px; }
+  .btn-primary     { width: 100%; justify-content: center; padding: 15px 24px; font-size: 15px; }
+  .wc-privacy      { font-size: 11px; }
+
+  /* ── Assessment — ESCONDE sidebar no mobile ── */
+  .assessment-layout {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 57px);
+  }
+
+  .sidebar-panel { display: none; }
+
+  .chat-panel {
+    padding: 24px 20px 120px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .chat-inner { max-width: 100%; }
+
+  /* Bolhas */
+  .msg-bubble { font-size: 14px; padding: 12px 16px; max-width: 95%; }
+
+  /* Opções de resposta — full width, bem espaçadas */
+  .options-wrap { gap: 10px; }
+
+  .option-btn {
+    font-size: 14px;
+    padding: 14px 16px;
+    width: 100%;
+    line-height: 1.4;
+  }
+
+  /* Input de texto */
+  .text-input-wrap { flex-direction: row; }
+  .text-input { font-size: 15px; padding: 13px 14px; }
+
+  /* Pergunta */
+  .question-text { font-size: 15px; margin: 16px 0 10px; }
+
+  /* Progress bar */
+  .assessment-header { padding: 10px 16px; gap: 12px; }
+  .header-logo span  { display: none; }
+  .header-logo img   { height: 20px; }
+
+  /* Badge toast — no mobile fica no topo mas menor */
+  .badge-toast {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .bt-title { font-size: 12px; }
+  .bt-icon  { font-size: 22px; }
+
+  /* Pill de pontos */
+  .answer-points { font-size: 11px; padding: 2px 9px; }
+
+  /* ── Resultados ── */
+  .rh-header  { padding: 12px 16px; }
   .rh-btn-outline { display: none; }
+  .rh-btn-cta { font-size: 12px; padding: 8px 14px; }
+  .rh-logo-img { height: 22px; }
+
+  .result-doc { padding: 24px 16px 60px; }
+
+  .rd-top { grid-template-columns: 1fr; gap: 16px; }
+  .rd-title { font-size: 18px; }
+
+  .rd-skills-grid { grid-template-columns: 1fr; }
+  .rd-radar-card  { height: 280px; padding: 16px; }
+
+  .rd-section-title { font-size: 20px; }
+  .rd-badges-grid   { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .rdb-card         { padding: 10px 8px; }
+  .rdb-icon         { font-size: 18px; }
+  .rdb-name         { font-size: 9px; }
+
+  .rd-swot          { grid-template-columns: 1fr; }
+  .rds-box          { padding: 18px; }
+
+  .rd-whatsapp-gate { flex-direction: column; gap: 16px; padding: 20px; }
+  .wg-form          { flex-direction: column; }
+  .wg-form input    { width: 100%; }
+  .btn-whatsapp     { width: 100%; text-align: center; padding: 14px; }
 }
 
 /* ══════════════════════════════════════════════════════════════
