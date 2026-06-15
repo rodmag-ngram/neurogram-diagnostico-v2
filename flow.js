@@ -126,10 +126,10 @@ const BENCHMARK_QUESTIONS = [
     title: 'Se um computador da clínica parar de funcionar hoje, o que acontece?',
     badge: { id: 'backup_garantido', label: '💾 Backup Garantido' },
     options: [
-      { label: 'Posso perder exames', score: 0 },
-      { label: 'Tenho backup manual', score: 8 },
-      { label: 'Tenho backup automático', score: 16 },
-      { label: 'Tenho redundância e recuperação imediata', score: 25 }
+      { label: 'Posso perder dados — não tenho backup', score: 0 },
+      { label: 'Tenho backup manual em HD externo ou pen drive', score: 8 },
+      { label: 'Tenho backup manual salvo na nuvem (Drive, Dropbox...)', score: 16 },
+      { label: 'Tenho backup automático e não preciso me preocupar', score: 25 }
     ]
   },
   {
