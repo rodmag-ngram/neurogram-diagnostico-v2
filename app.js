@@ -229,6 +229,7 @@ function appendReturnOrRedoOptions(email, slug, advanceFn) {
 
   $('opt-return').addEventListener('click', () => {
     wrap.remove();
+    track('returning_user_view', { slug });
     appendUserBubble('Quero ver meu resultado anterior');
     showTypingIndicator();
     setTimeout(() => {
@@ -239,6 +240,7 @@ function appendReturnOrRedoOptions(email, slug, advanceFn) {
 
   $('opt-redo').addEventListener('click', () => {
     wrap.remove();
+    track('returning_user_redo', { slug });
     appendUserBubble('Quero refazer o diagnóstico');
     showTypingIndicator();
     setTimeout(() => {
@@ -259,6 +261,7 @@ function renderNext() {
     if (state.currentStep >= PROFILE_QUESTIONS.length) {
       state.phase = 'benchmark';
       state.currentStep = 0;
+      track('profile_completed');
       setTimeout(() => {
         appendBotBubble('Ótimo! Agora vamos avaliar a maturidade da sua operação. Responda com base na realidade atual da sua clínica. 💪');
         setTimeout(renderNext, 500);
@@ -320,7 +323,7 @@ function renderProfileQuestion(q) {
       appendUserBubble(val);
 
       if (q.type === 'email') {
-        // Verifica se esse email já tem um diagnóstico salvo
+        track('email_submitted');
         try {
           const res = await fetch('/api/lookup', {
             method: 'POST',
@@ -329,7 +332,7 @@ function renderProfileQuestion(q) {
           });
           const data = await res.json();
           if (data.slug) {
-            // Email já existe — pergunta o que fazer
+            track('returning_user_shown', { slug: data.slug });
             showTypingIndicator();
             setTimeout(() => {
               removeTypingIndicator();
@@ -425,6 +428,7 @@ function renderBenchmarkQuestion(q) {
       state.currentStep++;
       saveState();
       updateSidebarScores();
+      track('question_answered', { question: q.id, pillar: q.pillar, score: opt.score, answer: opt.label });
 
       // Badge individual
       if (idx === q.options.length - 1) {
@@ -477,6 +481,17 @@ async function finishAssessment() {
   state.slug           = generateSlug(state.profileAnswers.nome || 'clinica');
   saveState();
 
+  track('quiz_completed', {
+    score_geral:              Math.round(avg(state.scores) * 100) / 100,
+    score_seguranca:          state.scores.seguranca,
+    score_processos:          state.scores.processos,
+    score_interoperabilidade: state.scores.interoperabilidade,
+    score_inteligencia:       state.scores.inteligencia,
+    persona:                  state.persona?.label,
+    persona_tier:             state.persona?.tier,
+    badges_count:             state.unlockedBadges.length
+  });
+
   revealPersonaInSidebar(state.persona);
   showTypingIndicator();
 
@@ -485,10 +500,12 @@ async function finishAssessment() {
   removeTypingIndicator();
 
   if (!slug) {
+    track('submit_failed');
     appendBotBubble('Ops, tivemos um problema ao salvar seu resultado. Tente novamente em instantes.');
     return;
   }
 
+  track('submit_success', { slug });
   window.location.href = `/resultado?slug=${slug}`;
 }
 
@@ -750,6 +767,7 @@ function init() {
   setDate();
   initRadarChart();
   initWhatsApp();
+  track('quiz_started');
 
   setTimeout(() => {
     appendBotBubble('Olá! Vou guiar você pelo diagnóstico de maturidade operacional da sua clínica.');

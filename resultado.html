@@ -234,6 +234,7 @@
     </div>
   </div>
 
+  <script src="analytics.js"></script>
   <script src="flow.js"></script>
   <script>
     const SUPABASE_URL = 'https://jwfuajkxucvupmdokrrw.supabase.co';
@@ -260,6 +261,7 @@
         );
         const rows = await res.json();
         if (!rows.length) return showError();
+        track('result_viewed', { slug: rows[0].slug, persona: rows[0].persona, score_geral: rows[0].score_geral });
         renderResult(rows[0]);
       } catch(e) {
         showError();
@@ -285,6 +287,7 @@
     }
 
     function showGate(slug) {
+      track('whatsapp_gate_shown', { slug });
       const gate = document.getElementById('whats-gate');
       gate.style.display = 'flex';
       const phoneInput = document.getElementById('wg-phone');
@@ -298,6 +301,7 @@
           phoneInput.placeholder = 'Número inválido — tente novamente';
           return;
         }
+        track('whatsapp_gate_submitted', { slug });
         dismissGate();
         const resultUrl = `${location.origin}/resultado.html?slug=${slug}`;
         const msg = encodeURIComponent(`Olá! Aqui está o link do seu Diagnóstico de Maturidade Operacional da Neurogram:\n\n${resultUrl}\n\nVocê pode revisitá-lo sempre que quiser.`);
@@ -306,7 +310,10 @@
         window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
       });
 
-      document.getElementById('wg-skip').addEventListener('click', dismissGate);
+      document.getElementById('wg-skip').addEventListener('click', () => {
+        track('whatsapp_gate_skipped', { slug });
+        dismissGate();
+      });
     }
 
     function dismissGate() {

@@ -34,4 +34,7 @@ function initWelcomeRadar() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', initWelcomeRadar);
+document.addEventListener('DOMContentLoaded', () => {
+  initWelcomeRadar();
+  track('home_viewed');
+});
