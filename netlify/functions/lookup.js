@@ -25,15 +25,15 @@ exports.handler = async (event) => {
     if (!email) return { statusCode: 400, headers, body: JSON.stringify({ error: 'missing email' }) };
 
     const { data } = await supabase
-      .from('diagnostics')
-      .select('slug')
+      .from('contacts')
+      .select('slug_mais_recente')
       .eq('email', email)
       .single();
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ slug: data?.slug || null })
+      body: JSON.stringify({ slug: data?.slug_mais_recente || null })
     };
   } catch (err) {
     return {

@@ -33,31 +33,23 @@ async function getHubSpotContact(email) {
   return data.results?.[0] || null;
 }
 
-// Verifica se deve enviar e-mail (primeira vez OU última resposta > 24h atrás)
 function shouldSendEmail(existing, nowMs) {
-  if (!existing) return true; // contato novo → sempre envia
-
+  if (!existing) return true;
   const ultimaResposta = parseInt(existing.properties?.diagnostico_ultima_resposta || '0', 10);
-  if (!ultimaResposta) return true; // nunca teve resposta registrada
-
-  const VINTE_QUATRO_HORAS = 24 * 60 * 60 * 1000;
-  return (nowMs - ultimaResposta) > VINTE_QUATRO_HORAS;
+  if (!ultimaResposta) return true;
+  return (nowMs - ultimaResposta) > 24 * 60 * 60 * 1000;
 }
 
-async function upsertHubSpotContact(body) {
+async function upsertHubSpotContact(body, slug) {
   if (!HS_TOKEN || !body.email) return;
 
-  const nowMs   = Date.now();
-  const badges  = (body.badges || []).map(b => b.id).join(';'); // checkbox usa ; como separador
-
-  // Verifica se o contato já existe para lógica de first/last/count
+  const nowMs    = Date.now();
   const existing = await getHubSpotContact(body.email);
-  const isNew    = !existing;
   const prevCount = parseInt(existing?.properties?.diagnostico_count_respostas || '0', 10);
   const primeiraResposta = existing?.properties?.diagnostico_primeira_resposta || String(nowMs);
+  const badges = (body.badges || []).map(b => b.id).join(';');
 
   const properties = {
-    // Campos padrão HubSpot
     firstname:   (body.nome || '').split(' ')[0],
     lastname:    (body.nome || '').split(' ').slice(1).join(' ') || '',
     email:       body.email,
@@ -65,34 +57,28 @@ async function upsertHubSpotContact(body) {
     company:     body.instituicao || '',
     state:       body.estado      || '',
 
-    // Scores
     diagnostico_score_seguranca:          body.score_seguranca          ?? '',
     diagnostico_score_processos:          body.score_processos          ?? '',
     diagnostico_score_interoperabilidade: body.score_interoperabilidade ?? '',
     diagnostico_score_inteligencia:       body.score_inteligencia       ?? '',
     diagnostico_score_geral:              body.score_geral              ?? '',
 
-    // Resultado
     diagnostico_persona:      body.persona      || '',
     diagnostico_persona_tier: body.persona_tier || '',
     diagnostico_badges_count: (body.badges || []).length,
     diagnostico_badges:       badges,
 
-    // Perfil
     diagnostico_funcao:        body.funcao        || '',
     diagnostico_instituicao:   body.instituicao   || '',
     diagnostico_estado:        body.estado        || '',
     diagnostico_volume_mensal: body.volume_mensal || '',
     diagnostico_objetivo:      body.objetivo      || '',
-    diagnostico_slug:          body.slug          || '',
+    diagnostico_slug:          slug               || '',
     diagnostico_data:          String(nowMs),
 
-    // Datas e contador
     diagnostico_ultima_resposta:   String(nowMs),
     diagnostico_primeira_resposta: primeiraResposta,
     diagnostico_count_respostas:   prevCount + 1,
-
-    // Gatilho de e-mail — true se for a primeira vez ou se passou 24h
     diagnostico_enviar_email: shouldSendEmail(existing, nowMs) ? 'true' : 'false',
   };
 
@@ -122,7 +108,7 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body);
 
-    // Atualização de WhatsApp
+    // ── Atualização de WhatsApp ──────────────────────────────
     if (body._update && body.slug) {
       const update = {};
       if (body.whatsapp) {
@@ -137,20 +123,21 @@ exports.handler = async (event) => {
 
       if (error) throw error;
 
-      // Atualiza phone no HubSpot também
-      if (body.whatsapp && HS_TOKEN) {
+      // Atualiza whatsapp em contacts também
+      if (body.whatsapp && body.email) {
+        await supabase
+          .from('contacts')
+          .update({ whatsapp: body.whatsapp })
+          .eq('email', body.email);
+      }
+
+      // Atualiza phone no HubSpot
+      if (body.whatsapp && HS_TOKEN && body.email) {
         await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${HS_TOKEN}`,
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            inputs: [{
-              idProperty: 'email',
-              id: body.email || '',
-              properties: { phone: body.whatsapp }
-            }]
+            inputs: [{ idProperty: 'email', id: body.email, properties: { phone: body.whatsapp } }]
           })
         });
       }
@@ -158,22 +145,41 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
     }
 
-    // Inserção / atualização principal
-    const answers = body.answers || {};
-    const swot    = body.swot    || {};
+    // ── Submission principal ─────────────────────────────────
 
-    // Busca slug existente para manter o mesmo link sempre
-    const { data: existingRow } = await supabase
-      .from('diagnostics')
-      .select('slug')
+    // 1) Busca slug existente em contacts para manter o mesmo link
+    const { data: existingContact } = await supabase
+      .from('contacts')
+      .select('slug_mais_recente, total_diagnosticos')
       .eq('email', body.email)
       .single();
 
-    const slug = existingRow?.slug || body.slug;
+    const slug = existingContact?.slug_mais_recente || body.slug;
+    const totalDiagnosticos = (existingContact?.total_diagnosticos || 0) + 1;
 
-    // Upsert por email — mantém slug original, atualiza tudo o mais
-    const { error } = await supabase.from('diagnostics').upsert({
+    // 2) Upsert em contacts — um registro por pessoa
+    const { error: contactError } = await supabase
+      .from('contacts')
+      .upsert({
+        email:              body.email,
+        nome:               body.nome,
+        funcao:             body.funcao,
+        instituicao:        body.instituicao,
+        estado:             body.estado,
+        slug_mais_recente:  slug,
+        total_diagnosticos: totalDiagnosticos,
+        updated_at:         new Date().toISOString(),
+      }, { onConflict: 'email' });
+
+    if (contactError) throw contactError;
+
+    // 3) Insert em diagnostics — histórico completo
+    const answers = body.answers || {};
+    const swot    = body.swot    || {};
+
+    const { error: diagError } = await supabase.from('diagnostics').upsert({
       slug,
+      contact_email:   body.email,
       email:           body.email,
       nome:            body.nome,
       funcao:          body.funcao,
@@ -215,16 +221,14 @@ exports.handler = async (event) => {
       resp_int_tempo:          answers.int_tempo,
       resp_int_indicadores:    answers.int_indicadores,
       resp_int_gargalos:       answers.int_gargalos,
-    }, { onConflict: 'email' });
+    }, { onConflict: 'slug' });
 
-    if (error) throw error;
+    if (diagError) throw diagError;
 
-    // Passa o slug correto para o HubSpot
-    const bodyWithSlug = { ...body, slug };
+    // 4) HubSpot
     console.log('[submit] HS_TOKEN present:', !!HS_TOKEN, '| email:', body.email, '| slug:', slug);
     try {
-      await upsertHubSpotContact(bodyWithSlug);
-      console.log('[submit] HubSpot upsert OK');
+      await upsertHubSpotContact(body, slug);
     } catch(e) {
       console.error('[submit] HubSpot upsert FAILED:', e.message);
     }
