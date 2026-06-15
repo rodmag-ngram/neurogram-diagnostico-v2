@@ -104,9 +104,12 @@ async function upsertHubSpotContact(body) {
     })
   });
 
+  const resText = await res.text();
   if (!res.ok) {
-    const err = await res.text();
-    console.error('HubSpot upsert error:', err);
+    console.error('[HubSpot] upsert failed', res.status, resText);
+    throw new Error(`HubSpot ${res.status}: ${resText}`);
+  } else {
+    console.log('[HubSpot] upsert success', res.status);
   }
 }
 
@@ -218,12 +221,18 @@ exports.handler = async (event) => {
 
     // Passa o slug correto para o HubSpot
     const bodyWithSlug = { ...body, slug };
-    await upsertHubSpotContact(bodyWithSlug).catch(e => console.error('HubSpot error:', e));
+    console.log('[submit] HS_TOKEN present:', !!HS_TOKEN, '| email:', body.email, '| slug:', slug);
+    try {
+      await upsertHubSpotContact(bodyWithSlug);
+      console.log('[submit] HubSpot upsert OK');
+    } catch(e) {
+      console.error('[submit] HubSpot upsert FAILED:', e.message);
+    }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ ok: true, slug: body.slug })
+      body: JSON.stringify({ ok: true, slug })
     };
 
   } catch (err) {
