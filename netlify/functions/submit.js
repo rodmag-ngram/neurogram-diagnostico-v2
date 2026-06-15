@@ -215,7 +215,7 @@ exports.handler = async (event) => {
       resp_int_tempo:          answers.int_tempo,
       resp_int_indicadores:    answers.int_indicadores,
       resp_int_gargalos:       answers.int_gargalos,
-    });
+    }, { onConflict: 'email' });
 
     if (error) throw error;
 

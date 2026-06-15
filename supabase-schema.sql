@@ -11,7 +11,7 @@ CREATE TABLE diagnostics (
 
   -- ── Perfil ──────────────────────────────────────────
   nome            TEXT,
-  email           TEXT,
+  email           TEXT        UNIQUE,
   whatsapp        TEXT,
   funcao          TEXT,
   instituicao     TEXT,
