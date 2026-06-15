@@ -478,8 +478,17 @@ async function finishAssessment() {
   saveState();
 
   revealPersonaInSidebar(state.persona);
+  showTypingIndicator();
 
   const slug = await submitToBackend();
+
+  removeTypingIndicator();
+
+  if (!slug) {
+    appendBotBubble('Ops, tivemos um problema ao salvar seu resultado. Tente novamente em instantes.');
+    return;
+  }
+
   window.location.href = `/resultado?slug=${slug}`;
 }
 
@@ -659,37 +668,43 @@ function getAnswerLabels() {
 }
 
 async function submitToBackend() {
-  try {
-    const res = await fetch('/.netlify/functions/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        slug:                     state.slug,
-        nome:                     state.profileAnswers.nome,
-        email:                    state.profileAnswers.email,
-        funcao:                   state.profileAnswers.funcao,
-        instituicao:              state.profileAnswers.instituicao,
-        estado:                   state.profileAnswers.estado,
-        volume_mensal:            state.profileAnswers.volume,
-        objetivo:                 state.profileAnswers.objetivo,
-        score_seguranca:          state.scores.seguranca,
-        score_processos:          state.scores.processos,
-        score_interoperabilidade: state.scores.interoperabilidade,
-        score_inteligencia:       state.scores.inteligencia,
-        score_geral:              Math.round(avg(state.scores) * 100) / 100,
-        persona:                  state.persona?.label,
-        persona_tier:             state.persona?.tier,
-        badges:                   state.unlockedBadges,
-        swot:                     state.swot,
-        answers:                  getAnswerLabels()
-      })
-    });
-    const data = await res.json();
-    return data.slug || state.slug;
-  } catch(e) {
-    console.warn('Backend offline (local mode):', e.message);
-    return state.slug;
+  const payload = {
+    slug:                     state.slug,
+    nome:                     state.profileAnswers.nome,
+    email:                    state.profileAnswers.email,
+    funcao:                   state.profileAnswers.funcao,
+    instituicao:              state.profileAnswers.instituicao,
+    estado:                   state.profileAnswers.estado,
+    volume_mensal:            state.profileAnswers.volume,
+    objetivo:                 state.profileAnswers.objetivo,
+    score_seguranca:          state.scores.seguranca,
+    score_processos:          state.scores.processos,
+    score_interoperabilidade: state.scores.interoperabilidade,
+    score_inteligencia:       state.scores.inteligencia,
+    score_geral:              Math.round(avg(state.scores) * 100) / 100,
+    persona:                  state.persona?.label,
+    persona_tier:             state.persona?.tier,
+    badges:                   state.unlockedBadges,
+    swot:                     state.swot,
+    answers:                  getAnswerLabels()
+  };
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch('/.netlify/functions/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return data.slug || state.slug;
+    } catch(e) {
+      console.warn(`[submit] tentativa ${attempt} falhou:`, e.message);
+      if (attempt < 3) await new Promise(r => setTimeout(r, 1500));
+    }
   }
+  return null;
 }
 
 // ============================================================
