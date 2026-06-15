@@ -7,6 +7,19 @@
   <meta name="description" content="Resultado do Diagnóstico de Maturidade Operacional — Neurogram">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '480869807914363');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=480869807914363&ev=PageView&noscript=1"/></noscript>
+  <!-- End Meta Pixel -->
   <style>
     /* Overrides específicos para a página de resultado por slug */
     body { background: var(--sidebar-bg); }
@@ -333,6 +346,7 @@
       if (params.get('new') === '1') {
         el.classList.add('result-blurred');
         showGate(slug);
+        if (typeof fbq !== 'undefined') fbq('track', 'Lead');
       }
 
       const scores = {
@@ -362,13 +376,13 @@
         </div>
       `).join('');
 
-      // Persona
+      // Perfil
       const tiers = { elite: 'Elite', dominancia: 'Especialista', equilibrio: 'Em desenvolvimento' };
       document.getElementById('rd-persona').innerHTML = `
         <div class="rd-persona-card">
-          <div class="rdpc-label">Persona — ${tiers[d.persona_tier] || ''}</div>
+          <div class="rdpc-label">Perfil — ${tiers[d.persona_tier] || ''}</div>
           <div class="rdpc-name">${d.persona || ''}</div>
-          <div class="rdpc-text">${getPersonaText(d.persona)}</div>
+          <div class="rdpc-text">${getPerfilText(d.persona)}</div>
         </div>
       `;
 
@@ -474,8 +488,8 @@
       }).join('');
     }
 
-    function getPersonaText(label) {
-      const p = PERSONAS.find(p => p.label === label);
+    function getPerfilText(label) {
+      const p = PERFIS.find(p => p.label === label);
       return p ? p.text : '';
     }
 
