@@ -485,10 +485,7 @@ function renderResults() {
   $('rd-persona').innerHTML = `
     <div class="rd-persona-card">
       <div class="rdpc-label">Persona — ${tierLabels[persona.tier] || ''}</div>
-      <div class="rdpc-icon-row">
-        <div class="rdpc-icon">✦</div>
-        <div class="rdpc-name">${persona.label}</div>
-      </div>
+      <div class="rdpc-name">${persona.label}</div>
       <div class="rdpc-text">${persona.text}</div>
     </div>
   `;
