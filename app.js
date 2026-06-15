@@ -215,6 +215,40 @@ function scrollChat() {
   setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 60);
 }
 
+function appendReturnOrRedoOptions(email, slug, advanceFn) {
+  const resultUrl = `/resultado?slug=${slug}`;
+  const chat = $('chat-inner');
+  const wrap = document.createElement('div');
+  wrap.className = 'options-wrap';
+  wrap.innerHTML = `
+    <button class="option-btn" id="opt-return">Ver meu resultado anterior →</button>
+    <button class="option-btn" id="opt-redo">Refazer o diagnóstico</button>
+  `;
+  chat.appendChild(wrap);
+  scrollChat();
+
+  $('opt-return').addEventListener('click', () => {
+    wrap.remove();
+    appendUserBubble('Quero ver meu resultado anterior');
+    showTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      appendBotBubble(`Aqui está o link do seu diagnóstico: <a href="${resultUrl}" target="_blank" style="color:var(--accent);text-decoration:underline">${resultUrl}</a>`);
+    }, 700);
+  });
+
+  $('opt-redo').addEventListener('click', () => {
+    wrap.remove();
+    appendUserBubble('Quero refazer o diagnóstico');
+    showTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      appendBotBubble('Tudo bem! Vamos do início então.');
+      setTimeout(() => advanceFn(email), 500);
+    }, 700);
+  });
+}
+
 // ============================================================
 // FLUXO
 // ============================================================
@@ -266,23 +300,50 @@ function renderProfileQuestion(q) {
     const btn = $('btn-continuar');
     setTimeout(() => field.focus(), 100);
 
-    const submit = () => {
-      const val = field.value.trim();
-      if (!val) return;
-      if (q.type === 'email' && !val.includes('@')) { field.style.borderColor = '#EF4444'; return; }
-      removeCurrentInput();
-      appendUserBubble(val);
+    const advance = (val) => {
       state.profileAnswers[q.id] = val;
-
-      // Atualiza sidebar
-      if (q.id === 'nome')       updateSidebarProfile('nome', val);
-      if (q.id === 'funcao')     updateSidebarProfile('funcao', val);
+      if (q.id === 'nome')        updateSidebarProfile('nome', val);
+      if (q.id === 'funcao')      updateSidebarProfile('funcao', val);
       if (q.id === 'instituicao') updateSidebarProfile('instituicao', val);
-      if (q.id === 'volume')     updateSidebarProfile('volume', val);
-
+      if (q.id === 'volume')      updateSidebarProfile('volume', val);
       state.currentStep++;
       saveState();
       setTimeout(renderNext, 350);
+    };
+
+    const submit = async () => {
+      const val = field.value.trim();
+      if (!val) return;
+      if (q.type === 'email' && !val.includes('@')) { field.style.borderColor = '#EF4444'; return; }
+
+      removeCurrentInput();
+      appendUserBubble(val);
+
+      if (q.type === 'email') {
+        // Verifica se esse email já tem um diagnóstico salvo
+        try {
+          const res = await fetch('/api/lookup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: val })
+          });
+          const data = await res.json();
+          if (data.slug) {
+            // Email já existe — pergunta o que fazer
+            showTypingIndicator();
+            setTimeout(() => {
+              removeTypingIndicator();
+              appendBotBubble(`Ei, encontrei um diagnóstico anterior vinculado a esse e-mail. O que você prefere fazer?`);
+              setTimeout(() => appendReturnOrRedoOptions(val, data.slug, advance), 400);
+            }, 900);
+            return;
+          }
+        } catch (e) {
+          // falha silenciosa — segue o fluxo normal
+        }
+      }
+
+      advance(val);
     };
 
     btn.addEventListener('click', submit);
