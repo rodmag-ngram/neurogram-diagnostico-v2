@@ -328,9 +328,12 @@
       const el = document.getElementById('screen-results');
       el.style.display = 'block';
       el.classList.add('active');
-      el.classList.add('result-blurred');
-      const slug = new URLSearchParams(window.location.search).get('slug');
-      showGate(slug);
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      if (params.get('new') === '1') {
+        el.classList.add('result-blurred');
+        showGate(slug);
+      }
 
       const scores = {
         seguranca:          d.score_seguranca,

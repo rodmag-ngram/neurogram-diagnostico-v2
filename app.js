@@ -506,7 +506,7 @@ async function finishAssessment() {
   }
 
   track('submit_success', { slug });
-  window.location.href = `/resultado?slug=${slug}`;
+  window.location.href = `/resultado?slug=${slug}&new=1`;
 }
 
 // ============================================================
