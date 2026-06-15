@@ -469,19 +469,18 @@ function showBadgeToast(badge) {
 // ============================================================
 // FINALIZAÇÃO
 // ============================================================
-function finishAssessment() {
+async function finishAssessment() {
   state.phase = 'results';
-  state.persona   = detectPersona(state.scores);
-  state.swot      = computeSWOT(state.scores);
+  state.persona        = detectPersona(state.scores);
+  state.swot           = computeSWOT(state.scores);
   state.unlockedBadges = detectBadges(state.benchmarkAnswers, state.scores);
-  state.slug      = generateSlug(state.profileAnswers.nome || 'clinica');
+  state.slug           = generateSlug(state.profileAnswers.nome || 'clinica');
   saveState();
 
   revealPersonaInSidebar(state.persona);
-  submitToBackend();
-  renderResults();
 
-  setTimeout(() => showScreen('screen-results'), 600);
+  const slug = await submitToBackend();
+  window.location.href = `/resultado?slug=${slug}`;
 }
 
 // ============================================================
@@ -661,7 +660,7 @@ function getAnswerLabels() {
 
 async function submitToBackend() {
   try {
-    await fetch('/.netlify/functions/submit', {
+    const res = await fetch('/.netlify/functions/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -685,7 +684,12 @@ async function submitToBackend() {
         answers:                  getAnswerLabels()
       })
     });
-  } catch(e) { console.warn('Backend offline (local mode):', e.message); }
+    const data = await res.json();
+    return data.slug || state.slug;
+  } catch(e) {
+    console.warn('Backend offline (local mode):', e.message);
+    return state.slug;
+  }
 }
 
 // ============================================================
