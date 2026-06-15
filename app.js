@@ -44,37 +44,6 @@ function setDate() {
 // ============================================================
 // WELCOME RADAR (decorativo)
 // ============================================================
-function initWelcomeRadar() {
-  const ctx = $('welcome-radar');
-  if (!ctx) return;
-  new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['Seg.','Proc.','Inter.','Intel.'],
-      datasets: [{
-        data: [82, 75, 91, 58],
-        backgroundColor: 'rgba(162,201,110,.15)',
-        borderColor: '#A2C96E',
-        borderWidth: 1.5,
-        pointRadius: 2,
-        pointBackgroundColor: ['#A2C96E','#10B981','#8B5CF6','#F59E0B']
-      }]
-    },
-    options: {
-      responsive: false,
-      animation: false,
-      scales: {
-        r: {
-          beginAtZero: true, min: 0, max: 100,
-          ticks: { display: false },
-          grid: { color: 'rgba(255,255,255,.08)' },
-          pointLabels: { display: false }
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
-}
 
 // ============================================================
 // ASSESSMENT RADAR (ao vivo)
@@ -690,7 +659,7 @@ function initWhatsApp() {
   // Restart
   $('btn-restart').addEventListener('click', () => {
     localStorage.removeItem('neurogram_diag_v2');
-    location.reload();
+    window.location.href = '/';
   });
 }
 
@@ -699,19 +668,13 @@ function initWhatsApp() {
 // ============================================================
 function init() {
   setDate();
-  initWelcomeRadar();
-
-  $('btn-start').addEventListener('click', () => {
-    showScreen('screen-assessment');
-    initRadarChart();
-    setTimeout(() => {
-      appendBotBubble('Olá! Vou guiar você pelo diagnóstico de maturidade operacional da sua clínica.');
-      setTimeout(renderNext, 500);
-    }, 200);
-  });
-
+  initRadarChart();
   initWhatsApp();
-  showScreen('screen-welcome');
+
+  setTimeout(() => {
+    appendBotBubble('Olá! Vou guiar você pelo diagnóstico de maturidade operacional da sua clínica.');
+    setTimeout(renderNext, 500);
+  }, 200);
 }
 
 document.addEventListener('DOMContentLoaded', init);

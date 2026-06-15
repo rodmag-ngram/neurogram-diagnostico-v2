@@ -12,6 +12,16 @@
     X-Content-Type-Options = "nosniff"
 
 [[redirects]]
+  from = "/quiz"
+  to = "/quiz.html"
+  status = 200
+
+[[redirects]]
+  from = "/resultado"
+  to = "/resultado.html"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
