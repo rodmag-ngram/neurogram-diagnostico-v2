@@ -225,8 +225,24 @@ exports.handler = async (event) => {
 
     if (diagError) throw diagError;
 
-    // 4) HubSpot — fire and forget, não bloqueia o redirect
+    // 4) HubSpot — reset flags sincronamente antes de retornar, resto fire-and-forget
     console.log('[submit] HS_TOKEN present:', !!HS_TOKEN, '| email:', body.email, '| slug:', slug);
+    if (HS_TOKEN && body.email) {
+      try {
+        await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inputs: [{ idProperty: 'email', id: body.email, properties: {
+              diagnostico_enviar_email: 'false',
+              whatsapp_enviar_resultado: 'false',
+            }}]
+          })
+        });
+      } catch (e) {
+        console.error('[submit] flag reset failed:', e.message);
+      }
+    }
     upsertHubSpotContact(body, slug).catch(e =>
       console.error('[submit] HubSpot upsert FAILED:', e.message)
     );
