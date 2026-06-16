@@ -533,7 +533,8 @@ async function finishAssessment() {
     }
 
     track('submit_success', { slug });
-    window.location.href = `/resultado?slug=${slug}&new=1`;
+    const emailParam = encodeURIComponent(state.profileAnswers.email || '');
+    window.location.href = `/resultado?slug=${slug}&new=1&email=${emailParam}`;
   } catch (e) {
     console.error('[finishAssessment] crash:', e);
     track('submit_failed');
