@@ -323,14 +323,23 @@
           await fetch('/.netlify/functions/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ _update: true, slug, email, whatsapp: intl, whatsapp_enviar_resultado: true }),
+            body: JSON.stringify({ _update: true, slug, email, whatsapp: intl, whatsapp_enviar_resultado: true, diagnostico_enviar_email: true }),
           });
         } catch (_) {}
         dismissGate();
       });
 
-      document.getElementById('wg-skip').addEventListener('click', () => {
+      document.getElementById('wg-skip').addEventListener('click', async () => {
         track('whatsapp_gate_skipped', { slug });
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get('email') || '';
+        try {
+          await fetch('/.netlify/functions/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ _update: true, slug, email, diagnostico_enviar_email: true }),
+          });
+        } catch (_) {}
         dismissGate();
       });
     }

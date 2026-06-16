@@ -74,7 +74,7 @@ async function upsertHubSpotContact(body, slug) {
     diagnostico_ultima_resposta:   String(nowMs),
     diagnostico_primeira_resposta: primeiraResposta,
     diagnostico_count_respostas:   prevCount + 1,
-    diagnostico_enviar_email: 'true',
+    diagnostico_enviar_email: 'false',
   };
 
   const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
@@ -126,17 +126,21 @@ exports.handler = async (event) => {
           .eq('email', body.email);
       }
 
-      // Atualiza phone (e flag de envio) no HubSpot
-      if (body.whatsapp && HS_TOKEN && body.email) {
-        const hsProps = { phone: body.whatsapp };
+      // Atualiza phone e flags no HubSpot
+      if (HS_TOKEN && body.email) {
+        const hsProps = {};
+        if (body.whatsapp) hsProps.phone = body.whatsapp;
         if (body.whatsapp_enviar_resultado) hsProps.whatsapp_enviar_resultado = 'true';
-        await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            inputs: [{ idProperty: 'email', id: body.email, properties: hsProps }]
-          })
-        });
+        if (body.diagnostico_enviar_email) hsProps.diagnostico_enviar_email = 'true';
+        if (Object.keys(hsProps).length > 0) {
+          await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              inputs: [{ idProperty: 'email', id: body.email, properties: hsProps }]
+            })
+          });
+        }
       }
 
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
