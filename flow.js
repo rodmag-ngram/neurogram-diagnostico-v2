@@ -1,5 +1,5 @@
 // flow.js — Neurogram Diagnóstico V2
-// Dados, perguntas, lógica de score, personas, badges e SWOT
+// Dados, perguntas, lógica de score, perfis, badges e SWOT
 
 // ============================================================
 // PERGUNTAS DE PERFIL (não pontuadas)
@@ -351,9 +351,9 @@ const SPECIAL_BADGES = [
 ];
 
 // ============================================================
-// PERSONAS (9 no total, 3 níveis)
+// PERFIS (9 no total, 3 níveis)
 // ============================================================
-const PERSONAS = [
+const PERFIS = [
   // NÍVEL 1 — ELITE
   {
     id: 'referencia',
@@ -476,7 +476,7 @@ function getPillarText(pillar, score) {
   return tiers.find(t => score >= t.min && score <= t.max)?.text || '';
 }
 
-function detectPersona(scores) {
+function detectPerfil(scores) {
   const vals    = Object.values(scores);
   const average = avg(scores);
   const minScore = Math.min(...vals);
@@ -484,12 +484,12 @@ function detectPersona(scores) {
 
   // ── NÍVEL 1 — ELITE ────────────────────────────────────────
   // Referência: todos os pilares ≥ 85
-  if (vals.every(s => s >= 85)) return PERSONAS.find(p => p.id === 'referencia');
+  if (vals.every(s => s >= 85)) return PERFIS.find(p => p.id === 'referencia');
 
   // Pronta para Escalar:
   //   todos ≥ 70  OU  (média ≥ 75 E mínimo ≥ 55)
   if (vals.every(s => s >= 70) || (average >= 75 && minScore >= 55)) {
-    return PERSONAS.find(p => p.id === 'escalar');
+    return PERFIS.find(p => p.id === 'escalar');
   }
 
   // ── NÍVEL 2 — DOMINÂNCIA ───────────────────────────────────
@@ -503,14 +503,14 @@ function detectPersona(scores) {
     const avgOthers = others.reduce((a, b) => a + b, 0) / others.length;
 
     if (pScore >= 70 && (pScore - avgOthers) >= 20) {
-      return PERSONAS.find(pe => pe.pillar === p);
+      return PERFIS.find(pe => pe.pillar === p);
     }
   }
 
   // ── NÍVEL 3 — EQUILÍBRIO ───────────────────────────────────
-  if (average >= 55) return PERSONAS.find(p => p.id === 'evolucao');
-  if (average >= 35) return PERSONAS.find(p => p.id === 'transformacao');
-  return PERSONAS.find(p => p.id === 'artesanal');
+  if (average >= 55) return PERFIS.find(p => p.id === 'evolucao');
+  if (average >= 35) return PERFIS.find(p => p.id === 'transformacao');
+  return PERFIS.find(p => p.id === 'artesanal') || PERFIS[0];
 }
 
 function detectBadges(answers, scores) {

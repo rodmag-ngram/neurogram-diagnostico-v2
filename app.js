@@ -145,15 +145,17 @@ function updateSidebarBadges(newBadge) {
 }
 
 function revealPerfilInSidebar(perfil) {
+  if (!perfil) return;
   const el = $('sb-persona');
+  if (!el) return;
   el.classList.remove('unknown');
   el.innerHTML = `
     <div class="sb-persona-label">Perfil</div>
     <div class="sb-persona-icon-row">
       <div class="sb-persona-icon">✦</div>
-      <div class="sb-persona-name">${perfil.label}</div>
+      <div class="sb-persona-name">${perfil.label || ''}</div>
     </div>
-    <div class="sb-persona-hint">${perfil.text.slice(0, 110)}…</div>
+    <div class="sb-persona-hint">${(perfil.text || '').slice(0, 110)}…</div>
   `;
 }
 
@@ -474,44 +476,51 @@ function showBadgeToast(badge) {
 // FINALIZAÇÃO
 // ============================================================
 async function finishAssessment() {
-  state.phase = 'results';
-  state.perfil        = detectPerfil(state.scores);
-  state.swot           = computeSWOT(state.scores);
-  state.unlockedBadges = detectBadges(state.benchmarkAnswers, state.scores);
-  state.slug           = generateSlug(state.profileAnswers.nome || 'clinica');
-  saveState();
-
-  track('quiz_completed', {
-    score_geral:              Math.round(avg(state.scores) * 100) / 100,
-    score_seguranca:          state.scores.seguranca,
-    score_processos:          state.scores.processos,
-    score_interoperabilidade: state.scores.interoperabilidade,
-    score_inteligencia:       state.scores.inteligencia,
-    persona:                  state.perfil?.label,
-    persona_tier:             state.perfil?.tier,
-    badges_count:             state.unlockedBadges.length
-  });
-
-  revealPerfilInSidebar(state.perfil);
-  showTypingIndicator();
-
-  let slug = null;
   try {
-    slug = await submitToBackend();
+    state.phase = 'results';
+    state.perfil        = detectPerfil(state.scores);
+    state.swot           = computeSWOT(state.scores);
+    state.unlockedBadges = detectBadges(state.benchmarkAnswers, state.scores);
+    state.slug           = generateSlug(state.profileAnswers.nome || 'clinica');
+    saveState();
+
+    track('quiz_completed', {
+      score_geral:              Math.round(avg(state.scores) * 100) / 100,
+      score_seguranca:          state.scores.seguranca,
+      score_processos:          state.scores.processos,
+      score_interoperabilidade: state.scores.interoperabilidade,
+      score_inteligencia:       state.scores.inteligencia,
+      persona:                  state.perfil?.label,
+      persona_tier:             state.perfil?.tier,
+      badges_count:             state.unlockedBadges.length
+    });
+
+    revealPerfilInSidebar(state.perfil);
+    showTypingIndicator();
+
+    let slug = null;
+    try {
+      slug = await submitToBackend();
+    } catch (e) {
+      console.error('[finishAssessment] submitToBackend threw:', e);
+    }
+
+    removeTypingIndicator();
+
+    if (!slug) {
+      track('submit_failed');
+      appendBotBubble('Ops, tivemos um problema ao salvar seu resultado. Tente novamente em instantes.');
+      return;
+    }
+
+    track('submit_success', { slug });
+    window.location.href = `/resultado?slug=${slug}&new=1`;
   } catch (e) {
-    console.error('[finishAssessment] submitToBackend threw:', e);
-  }
-
-  removeTypingIndicator();
-
-  if (!slug) {
+    console.error('[finishAssessment] crash:', e);
     track('submit_failed');
+    removeTypingIndicator();
     appendBotBubble('Ops, tivemos um problema ao salvar seu resultado. Tente novamente em instantes.');
-    return;
   }
-
-  track('submit_success', { slug });
-  window.location.href = `/resultado?slug=${slug}&new=1`;
 }
 
 // ============================================================
