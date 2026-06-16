@@ -33,12 +33,6 @@ async function getHubSpotContact(email) {
   return data.results?.[0] || null;
 }
 
-function shouldSendEmail(existing, nowMs) {
-  if (!existing) return true;
-  const ultimaResposta = parseInt(existing.properties?.diagnostico_ultima_resposta || '0', 10);
-  if (!ultimaResposta) return true;
-  return (nowMs - ultimaResposta) > 24 * 60 * 60 * 1000;
-}
 
 async function upsertHubSpotContact(body, slug) {
   if (!HS_TOKEN || !body.email) return;
@@ -80,7 +74,7 @@ async function upsertHubSpotContact(body, slug) {
     diagnostico_ultima_resposta:   String(nowMs),
     diagnostico_primeira_resposta: primeiraResposta,
     diagnostico_count_respostas:   prevCount + 1,
-    diagnostico_enviar_email: shouldSendEmail(existing, nowMs) ? 'true' : 'false',
+    diagnostico_enviar_email: 'true',
   };
 
   const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
