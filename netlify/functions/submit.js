@@ -128,7 +128,10 @@ exports.handler = async (event) => {
       // Atualiza phone e flags no HubSpot
       if (HS_TOKEN && body.email) {
         const hsProps = {};
-        if (body.whatsapp) hsProps.phone = body.whatsapp;
+        if (body.whatsapp) {
+          hsProps.phone = body.whatsapp;
+          hsProps.hs_whatsapp_phone_number = '+' + body.whatsapp;
+        }
         if (body.whatsapp_enviar_resultado) hsProps.whatsapp_enviar_resultado = 'true';
         if (body.diagnostico_enviar_email) hsProps.diagnostico_enviar_email = 'true';
         if (Object.keys(hsProps).length > 0) {
