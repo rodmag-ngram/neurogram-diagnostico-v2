@@ -74,7 +74,6 @@ async function upsertHubSpotContact(body, slug) {
     diagnostico_ultima_resposta:   String(nowMs),
     diagnostico_primeira_resposta: primeiraResposta,
     diagnostico_count_respostas:   prevCount + 1,
-    diagnostico_enviar_email: 'false',
   };
 
   const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
