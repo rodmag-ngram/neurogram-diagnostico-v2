@@ -316,11 +316,8 @@
         }
         track('whatsapp_gate_submitted', { slug });
         dismissGate();
-        const resultUrl = `${location.origin}/resultado.html?slug=${slug}`;
-        const msg = encodeURIComponent(`Olá! Aqui está o link do seu Diagnóstico de Maturidade Operacional da Neurogram:\n\n${resultUrl}\n\nVocê pode revisitá-lo sempre que quiser.`);
-        const digits = phone.replace(/\D/g, '');
-        const intl = digits.length === 11 ? '55' + digits : digits;
-        window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
+        const msg = encodeURIComponent(`Quero receber meu relatório ${slug}`);
+        window.open(`https://wa.me/15558095472?text=${msg}`, '_blank');
       });
 
       document.getElementById('wg-skip').addEventListener('click', () => {
