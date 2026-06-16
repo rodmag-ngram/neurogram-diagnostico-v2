@@ -143,14 +143,16 @@ exports.handler = async (event) => {
         }
         if (body.whatsapp_enviar_resultado) hsProps.whatsapp_enviar_resultado = 'true';
         if (body.diagnostico_enviar_email) hsProps.diagnostico_enviar_email = 'true';
+        console.log('[_update] hsProps:', JSON.stringify(hsProps));
         if (Object.keys(hsProps).length > 0) {
-          await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
+          const hsRes = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               inputs: [{ idProperty: 'email', id: email, properties: hsProps }]
             })
           });
+          console.log('[_update] HubSpot status:', hsRes.status);
         }
       }
 
