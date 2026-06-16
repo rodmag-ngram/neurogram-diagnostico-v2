@@ -104,6 +104,15 @@ exports.handler = async (event) => {
 
     // ── Atualização de WhatsApp ──────────────────────────────
     if (body._update && body.slug) {
+      // Se email não veio na URL, busca pelo slug
+      let email = body.email;
+      if (!email) {
+        const { data: d } = await supabase
+          .from('diagnostics').select('email').eq('slug', body.slug).single();
+        email = d?.email || '';
+      }
+      console.log('[_update] slug:', body.slug, '| email:', email);
+
       const update = {};
       if (body.whatsapp) {
         update.whatsapp = body.whatsapp;
@@ -118,15 +127,15 @@ exports.handler = async (event) => {
       if (error) throw error;
 
       // Atualiza whatsapp em contacts também
-      if (body.whatsapp && body.email) {
+      if (body.whatsapp && email) {
         await supabase
           .from('contacts')
           .update({ whatsapp: body.whatsapp })
-          .eq('email', body.email);
+          .eq('email', email);
       }
 
       // Atualiza phone e flags no HubSpot
-      if (HS_TOKEN && body.email) {
+      if (HS_TOKEN && email) {
         const hsProps = {};
         if (body.whatsapp) {
           hsProps.phone = body.whatsapp;
@@ -139,7 +148,7 @@ exports.handler = async (event) => {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              inputs: [{ idProperty: 'email', id: body.email, properties: hsProps }]
+              inputs: [{ idProperty: 'email', id: email, properties: hsProps }]
             })
           });
         }
