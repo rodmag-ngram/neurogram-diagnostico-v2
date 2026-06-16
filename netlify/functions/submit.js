@@ -74,6 +74,7 @@ async function upsertHubSpotContact(body, slug) {
     diagnostico_volume_mensal: body.volume_mensal || '',
     diagnostico_objetivo:      body.objetivo      || '',
     diagnostico_slug:          slug               || '',
+    diagnostico_url:           slug ? `https://neurogram-diagnostico-v2.netlify.app/resultado?slug=${slug}` : '',
     diagnostico_data:          String(nowMs),
 
     diagnostico_ultima_resposta:   String(nowMs),
@@ -131,13 +132,15 @@ exports.handler = async (event) => {
           .eq('email', body.email);
       }
 
-      // Atualiza phone no HubSpot
+      // Atualiza phone (e flag de envio) no HubSpot
       if (body.whatsapp && HS_TOKEN && body.email) {
+        const hsProps = { phone: body.whatsapp };
+        if (body.whatsapp_enviar_resultado) hsProps.whatsapp_enviar_resultado = 'true';
         await fetch('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${HS_TOKEN}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            inputs: [{ idProperty: 'email', id: body.email, properties: { phone: body.whatsapp } }]
+            inputs: [{ idProperty: 'email', id: body.email, properties: hsProps }]
           })
         });
       }

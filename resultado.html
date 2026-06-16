@@ -315,9 +315,18 @@
           return;
         }
         track('whatsapp_gate_submitted', { slug });
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get('email') || '';
+        const raw = phone.replace(/\D/g, '');
+        const intl = raw.length === 11 ? '55' + raw : raw;
+        try {
+          await fetch('/.netlify/functions/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ _update: true, slug, email, whatsapp: intl, whatsapp_enviar_resultado: true }),
+          });
+        } catch (_) {}
         dismissGate();
-        const msg = encodeURIComponent(`Quero receber meu relatório ${slug}`);
-        window.open(`https://wa.me/15558095472?text=${msg}`, '_blank');
       });
 
       document.getElementById('wg-skip').addEventListener('click', () => {
