@@ -225,13 +225,11 @@ exports.handler = async (event) => {
 
     if (diagError) throw diagError;
 
-    // 4) HubSpot
+    // 4) HubSpot — fire and forget, não bloqueia o redirect
     console.log('[submit] HS_TOKEN present:', !!HS_TOKEN, '| email:', body.email, '| slug:', slug);
-    try {
-      await upsertHubSpotContact(body, slug);
-    } catch(e) {
-      console.error('[submit] HubSpot upsert FAILED:', e.message);
-    }
+    upsertHubSpotContact(body, slug).catch(e =>
+      console.error('[submit] HubSpot upsert FAILED:', e.message)
+    );
 
     return {
       statusCode: 200,
