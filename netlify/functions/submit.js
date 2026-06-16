@@ -179,7 +179,6 @@ exports.handler = async (event) => {
 
     const { error: diagError } = await supabase.from('diagnostics').upsert({
       slug,
-      contact_email:   body.email,
       email:           body.email,
       nome:            body.nome,
       funcao:          body.funcao,
