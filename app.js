@@ -10,7 +10,7 @@ const state = {
   currentStep: 0,
   scores: { seguranca: 0, processos: 0, interoperabilidade: 0, inteligencia: 0 },
   unlockedBadges: [],
-  persona: null,
+  perfil: null,
   swot: null,
   slug: null,
   sectionsShown: new Set()
@@ -144,16 +144,16 @@ function updateSidebarBadges(newBadge) {
   }
 }
 
-function revealPersonaInSidebar(persona) {
+function revealPerfilInSidebar(perfil) {
   const el = $('sb-persona');
   el.classList.remove('unknown');
   el.innerHTML = `
-    <div class="sb-persona-label">Persona</div>
+    <div class="sb-persona-label">Perfil</div>
     <div class="sb-persona-icon-row">
       <div class="sb-persona-icon">✦</div>
-      <div class="sb-persona-name">${persona.label}</div>
+      <div class="sb-persona-name">${perfil.label}</div>
     </div>
-    <div class="sb-persona-hint">${persona.text.slice(0, 110)}…</div>
+    <div class="sb-persona-hint">${perfil.text.slice(0, 110)}…</div>
   `;
 }
 
@@ -475,7 +475,7 @@ function showBadgeToast(badge) {
 // ============================================================
 async function finishAssessment() {
   state.phase = 'results';
-  state.persona        = detectPersona(state.scores);
+  state.perfil        = detectPerfil(state.scores);
   state.swot           = computeSWOT(state.scores);
   state.unlockedBadges = detectBadges(state.benchmarkAnswers, state.scores);
   state.slug           = generateSlug(state.profileAnswers.nome || 'clinica');
@@ -487,15 +487,20 @@ async function finishAssessment() {
     score_processos:          state.scores.processos,
     score_interoperabilidade: state.scores.interoperabilidade,
     score_inteligencia:       state.scores.inteligencia,
-    persona:                  state.persona?.label,
-    persona_tier:             state.persona?.tier,
+    persona:                  state.perfil?.label,
+    persona_tier:             state.perfil?.tier,
     badges_count:             state.unlockedBadges.length
   });
 
-  revealPersonaInSidebar(state.persona);
+  revealPerfilInSidebar(state.perfil);
   showTypingIndicator();
 
-  const slug = await submitToBackend();
+  let slug = null;
+  try {
+    slug = await submitToBackend();
+  } catch (e) {
+    console.error('[finishAssessment] submitToBackend threw:', e);
+  }
 
   removeTypingIndicator();
 
@@ -513,7 +518,7 @@ async function finishAssessment() {
 // RESULTADOS — dark FSM-style
 // ============================================================
 function renderResults() {
-  const { scores, persona, swot, unlockedBadges, profileAnswers } = state;
+  const { scores, perfil, swot, unlockedBadges, profileAnswers } = state;
 
   // Data
   const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -535,13 +540,13 @@ function renderResults() {
     </div>
   `).join('');
 
-  // Persona
+  // Perfil
   const tierLabels = { elite: 'Elite', dominancia: 'Especialista', equilibrio: 'Em desenvolvimento' };
   $('rd-persona').innerHTML = `
     <div class="rd-persona-card">
-      <div class="rdpc-label">Persona — ${tierLabels[persona.tier] || ''}</div>
-      <div class="rdpc-name">${persona.label}</div>
-      <div class="rdpc-text">${persona.text}</div>
+      <div class="rdpc-label">Perfil — ${tierLabels[perfil.tier] || ''}</div>
+      <div class="rdpc-name">${perfil.label}</div>
+      <div class="rdpc-text">${perfil.text}</div>
     </div>
   `;
 
@@ -677,7 +682,7 @@ function getAnswerLabels() {
   const labels = {};
   for (const q of BENCHMARK_QUESTIONS) {
     const idx = state.benchmarkAnswers[q.id];
-    if (idx !== undefined && idx !== null) {
+    if (idx !== undefined && idx !== null && q.options[idx]) {
       labels[q.id] = q.options[idx].label;
     }
   }
@@ -699,8 +704,8 @@ async function submitToBackend() {
     score_interoperabilidade: state.scores.interoperabilidade,
     score_inteligencia:       state.scores.inteligencia,
     score_geral:              Math.round(avg(state.scores) * 100) / 100,
-    persona:                  state.persona?.label,
-    persona_tier:             state.persona?.tier,
+    persona:                  state.perfil?.label,
+    persona_tier:             state.perfil?.tier,
     badges:                   state.unlockedBadges,
     swot:                     state.swot,
     answers:                  getAnswerLabels()
