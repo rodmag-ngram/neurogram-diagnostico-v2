@@ -217,6 +217,25 @@ function scrollChat() {
   setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 60);
 }
 
+function showTypingIndicator() {
+  removeTypingIndicator();
+  const chat = $('chat-inner');
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot msg-typing';
+  div.dataset.typing = '1';
+  div.innerHTML = `
+    <div class="msg-avatar"><img src="assets/icone_neurogram.svg" alt="" class="avatar-icon"></div>
+    <div class="msg-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  `;
+  chat.appendChild(div);
+  scrollChat();
+}
+
+function removeTypingIndicator() {
+  const t = $('chat-inner')?.querySelector('[data-typing]');
+  if (t) t.remove();
+}
+
 function appendReturnOrRedoOptions(email, slug, advanceFn) {
   const resultUrl = `/resultado?slug=${slug}`;
   const chat = $('chat-inner');
